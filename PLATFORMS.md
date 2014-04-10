@@ -3,7 +3,8 @@ Platforms reference
 
 From inspecting platform package managers on 3/26/2013.
 
-
+```
+|-----------------+------------------------+------------------+------------|
 | distro          | package name           | software version | repository |
 |-----------------+------------------------+------------------+------------|
 | centos-5.x      | mysql-server           |           5.0.95 | base       |
@@ -34,3 +35,4 @@ From inspecting platform package managers on 3/26/2013.
 |-----------------+------------------------+------------------+------------|
 | omnios-151006   | mysql-65               |           5.6.13 | omniti-ms  |
 |-----------------+------------------------+------------------+------------|
+```
