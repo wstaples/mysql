@@ -3,7 +3,7 @@ Platforms reference
 
 From inspecting platform package managers on 3/26/2013.
 
-|-----------------+------------------------+------------------+------------|
+
 | distro          | package name           | software version | repository |
 |-----------------+------------------------+------------------+------------|
 | centos-5.x      | mysql-server           |           5.0.95 | base       |
