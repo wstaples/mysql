@@ -165,7 +165,7 @@ module Opscode
               '5.7' => {
                 'package_name' => 'mysql-community-server',
                 'service_name' => 'mysqld'
-              }              
+              }
             }
           },
           'fedora' => {
