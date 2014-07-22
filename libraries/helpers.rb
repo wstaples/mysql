@@ -74,6 +74,14 @@ module Opscode
               '5.5' => {
                 'package_name' => 'mysql55-mysql-server',
                 'service_name' => 'mysql55-mysqld'
+              },
+              '5.6' => {
+                'package_name' => 'mysql-community-server',
+                'service_name' => 'mysqld'
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server',
+                'service_name' => 'mysqld'
               }
             },
             '6' => {
@@ -89,6 +97,10 @@ module Opscode
               '5.6' => {
                 'package_name' => 'mysql-community-server',
                 'service_name' => 'mysqld'
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server',
+                'service_name' => 'mysqld'
               }
             },
             '7' => {
@@ -99,6 +111,14 @@ module Opscode
               },
               '5.5' => {
                 'package_name' => 'mysql55-server',
+                'service_name' => 'mysqld'
+              },
+              '5.6' => {
+                'package_name' => 'mysql-community-server',
+                'service_name' => 'mysqld'
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server',
                 'service_name' => 'mysqld'
               }
             },
@@ -122,6 +142,10 @@ module Opscode
               '5.6' => {
                 'package_name' => 'mysql-community-server',
                 'service_name' => 'mysqld'
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server',
+                'service_name' => 'mysqld'
               }
             },
             '2014.03' => {
@@ -137,7 +161,11 @@ module Opscode
               '5.6' => {
                 'package_name' => 'mysql-community-server',
                 'service_name' => 'mysqld'
-              }
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server',
+                'service_name' => 'mysqld'
+              }              
             }
           },
           'fedora' => {

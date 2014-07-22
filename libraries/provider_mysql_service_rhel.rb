@@ -47,6 +47,16 @@ class Chef
               pid_file = '/var/run/mysqld/mysql.pid'
               socket_file = '/var/lib/mysql/mysql.sock'
               package_name = 'mysql-community-server'
+              service_name = 'mysqld'              
+            when '5.7'
+              base_dir = ''
+              include_dir = "#{base_dir}/etc/mysql/conf.d"
+              prefix_dir = '/usr'
+              lc_messages_dir = nil
+              run_dir = '/var/run/mysqld'
+              pid_file = '/var/run/mysqld/mysql.pid'
+              socket_file = '/var/lib/mysql/mysql.sock'
+              package_name = 'mysql-community-server'
               service_name = 'mysqld'
             end
           when '2014'
@@ -72,6 +82,49 @@ class Chef
               package_name = 'mysql-community-server'
               service_name = 'mysqld'
             when '5.6'
+              base_dir = ''
+              include_dir = "#{base_dir}/etc/mysql/conf.d"
+              prefix_dir = '/usr'
+              lc_messages_dir = nil
+              run_dir = '/var/run/mysqld'
+              pid_file = '/var/run/mysqld/mysql.pid'
+              socket_file = '/var/lib/mysql/mysql.sock'
+              package_name = 'mysql-community-server'
+              service_name = 'mysqld'
+            when '5.7'
+              base_dir = ''
+              include_dir = "#{base_dir}/etc/mysql/conf.d"
+              prefix_dir = '/usr'
+              lc_messages_dir = nil
+              run_dir = '/var/run/mysqld'
+              pid_file = '/var/run/mysqld/mysql.pid'
+              socket_file = '/var/lib/mysql/mysql.sock'
+              package_name = 'mysql-community-server'
+              service_name = 'mysqld'
+            end
+          when '7'
+            case new_resource.version
+            when '5.5'
+              base_dir = ''
+              include_dir = "#{base_dir}/etc/mysql/conf.d"
+              prefix_dir = '/usr'
+              lc_messages_dir = nil
+              run_dir = '/var/run/mysqld'
+              pid_file = '/var/run/mysqld/mysql.pid'
+              socket_file = '/var/lib/mysql/mysql.sock'
+              package_name = 'mysql-community-server'
+              service_name = 'mysqld'
+            when '5.6'
+              base_dir = ''
+              include_dir = "#{base_dir}/etc/mysql/conf.d"
+              prefix_dir = '/usr'
+              lc_messages_dir = nil
+              run_dir = '/var/run/mysqld'
+              pid_file = '/var/run/mysqld/mysql.pid'
+              socket_file = '/var/lib/mysql/mysql.sock'
+              package_name = 'mysql-community-server'
+              service_name = 'mysqld'
+            when '5.7'
               base_dir = ''
               include_dir = "#{base_dir}/etc/mysql/conf.d"
               prefix_dir = '/usr'
@@ -114,6 +167,16 @@ class Chef
               socket_file = '/var/lib/mysql/mysql.sock'
               package_name = 'mysql-community-server'
               service_name = 'mysqld'
+            when '5.7'
+              base_dir = ''
+              include_dir = "#{base_dir}/etc/mysql/conf.d"
+              prefix_dir = '/usr'
+              lc_messages_dir = nil
+              run_dir = '/var/run/mysqld'
+              pid_file = '/var/run/mysqld/mysql.pid'
+              socket_file = '/var/lib/mysql/mysql.sock'
+              package_name = 'mysql-community-server'
+              service_name = 'mysqld'
             end
           when '5'
             case new_resource.version
@@ -147,6 +210,26 @@ class Chef
               socket_file = '/var/lib/mysql/mysql.sock'
               package_name = 'mysql55-mysql-server'
               service_name = 'mysql55-mysqld'
+            when '5.6'
+              base_dir = ''
+              include_dir = "#{base_dir}/etc/mysql/conf.d"
+              prefix_dir = '/usr'
+              lc_messages_dir = nil
+              run_dir = '/var/run/mysqld'
+              pid_file = '/var/run/mysqld/mysql.pid'
+              socket_file = '/var/lib/mysql/mysql.sock'
+              package_name = 'mysql-community-server'
+              service_name = 'mysqld'
+            when '5.7'
+              base_dir = ''
+              include_dir = "#{base_dir}/etc/mysql/conf.d"
+              prefix_dir = '/usr'
+              lc_messages_dir = nil
+              run_dir = '/var/run/mysqld'
+              pid_file = '/var/run/mysqld/mysql.pid'
+              socket_file = '/var/lib/mysql/mysql.sock'
+              package_name = 'mysql-community-server'
+              service_name = 'mysqld'
             end
           end
 
@@ -161,6 +244,10 @@ class Chef
               when '5.6'
                 recipe_eval do
                   run_context.include_recipe 'yum-mysql-community::mysql56'
+                end               
+              when '5.7'
+                recipe_eval do
+                  run_context.include_recipe 'yum-mysql-community::mysql57'
                 end
               end
             end
