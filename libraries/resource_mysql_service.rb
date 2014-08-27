@@ -10,6 +10,7 @@ class Chef
 
       attribute :allow_remote_root, :kind_of => [TrueClass, FalseClass], :default => false
       attribute :data_dir, :kind_of => String, :default => nil
+      attribute :instance, :kind_of => String, :name_attribute => true
       attribute :package_name, :kind_of => String, :default => nil
       attribute :port, :kind_of => String, :default => '3306'
       attribute :remove_anonymous_users, :kind_of => [TrueClass, FalseClass], :default => true
@@ -18,7 +19,6 @@ class Chef
       attribute :server_debian_password, :kind_of => String, :default => 'gnuslashlinux4ev4r'
       attribute :server_repl_password, :kind_of => String, :default => nil
       attribute :server_root_password, :kind_of => String, :default => 'ilikerandompasswords'
-      attribute :service_name, :kind_of => String, :name_attribute => true
       attribute :template_source, :kind_of => String, :default => nil
       attribute :version, :kind_of => String, :default => nil
       attribute :package_version, :kind_of => String, :default => nil
@@ -42,6 +42,10 @@ class Chef
         data_dir = '/var/db/mysql'
       end
       data_dir
+    end
+
+    def parsed_instance
+      return instance if instance
     end
 
     def parsed_package_name
@@ -88,10 +92,6 @@ class Chef
 
     def parsed_server_root_password
       return server_root_password if server_root_password
-    end
-
-    def parsed_service_name
-      return service_name if service_name
     end
 
     def parsed_template_source
