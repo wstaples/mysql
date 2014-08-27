@@ -1,4 +1,4 @@
-name 'mysql_test_wrapper'
+name 'mysql_service'
 version '0.0.1'
 
 depends 'mysql'
