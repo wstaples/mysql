@@ -57,7 +57,7 @@ class Chef
           end
 
           execute 'assign-root-password' do
-            cmd = 'prefix_dir/bin/mysqladmin'
+            cmd = '/usr/bin/mysqladmin'
             cmd << ' -u root password '
             cmd << Shellwords.escape(new_resource.parsed_server_root_password)
             command cmd
