@@ -57,12 +57,12 @@ class Chef
           end
 
           execute 'assign-root-password' do
-            cmd = "#{prefix_dir}/bin/mysqladmin"
+            cmd = 'prefix_dir/bin/mysqladmin'
             cmd << ' -u root password '
             cmd << Shellwords.escape(new_resource.parsed_server_root_password)
             command cmd
             action :run
-            only_if "#{prefix_dir}/bin/mysql -u root -e 'show databases;'"
+            only_if "/usr/bin/mysql -u root -e 'show databases;'"
           end
 
           template '/etc/mysql_grants.sql' do
@@ -77,7 +77,7 @@ class Chef
           end
 
           execute 'install-grants' do
-            cmd = "#{prefix_dir}/bin/mysql"
+            cmd = '/usr/bin/mysql'
             cmd << ' -u root '
             cmd << "#{pass_string} < /etc/mysql_grants.sql"
             command cmd
