@@ -4,7 +4,6 @@ mysql_service node['mysql']['service_name'] do
   version node['mysql']['version']
   port node['mysql']['port']
   data_dir node['mysql']['data_dir']
-  template_source node['mysql']['template_source']
   allow_remote_root node['mysql']['allow_remote_root']
   remove_anonymous_users node['mysql']['remove_anonymous_users']
   remove_test_database node['mysql']['remove_test_database']

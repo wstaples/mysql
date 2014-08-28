@@ -15,120 +15,71 @@ class Chef
         include MysqlCookbook::Helpers::Debian
 
         action :create do
-          package 'debconf-utils' do
-            action :install
+          # go home dpkg you're drunk
+          bash "#{new_resource.parsed_name} create install mysql package" do
+            code <<-EOF
+            mkdir -p /tmp/dpk-hack
+            ln -s /bin/true /tmp/dpk-hack/bash
+            ln -s /bin/true /tmp/dpk-hack/whiptail
+            ln -s /bin/true /tmp/dpk-hack/initctl
+            ln -s /bin/true /tmp/dpk-hack/invoke-rc.d
+            ln -s /bin/true /tmp/dpk-hack/restart
+            ln -s /bin/true /tmp/dpk-hack/start
+            ln -s /bin/true /tmp/dpk-hack/stop
+            ln -s /bin/true /tmp/dpk-hack/start-stop-daemon
+            ln -s /bin/true /tmp/dpk-hack/service
+            PATH=/tmp/dpk-hack:$PATH apt-get -y install #{new_resource.parsed_package_name}
+            EOF
+            not_if "/usr/bin/dpkg -l | awk '{ print $2 }' | grep #{new_resource.parsed_package_name}"
           end
 
-          directory '/var/cache/local/preseeding' do
-            owner 'root'
-            group 'root'
+          group "#{new_resource.parsed_name} create #{new_resource.parsed_run_group}" do
+            group_name new_resource.parsed_run_group
+            system true if new_resource.parsed_run_group == 'mysql'
+            action :create
+          end
+
+          user "#{new_resource.parsed_name} create #{new_resource.parsed_run_user}" do
+            username new_resource.parsed_run_user
+            gid new_resource.parsed_run_group
+            system true if new_resource.parsed_run_group == 'mysql'
+            action :create
+          end
+          
+          # support directories
+          directory "#{new_resource.parsed_name} create run_dir" do
+            path run_dir
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
             mode '0755'
             action :create
             recursive true
           end
 
-          template '/var/cache/local/preseeding/mysql-server.seed' do
-            cookbook 'mysql'
-            source 'debian/mysql-server.seed.erb'
-            owner 'root'
-            group 'root'
-            mode '0600'
-            variables(:config => new_resource)
-            action :create
-            notifies :run, 'execute[preseed mysql-server]', :immediately
-          end
-
-          execute 'preseed mysql-server' do
-            command '/usr/bin/debconf-set-selections /var/cache/local/preseeding/mysql-server.seed'
-            action :nothing
-          end
-
-          # package automatically initializes database and starts service.
-          # ... because that's totally super convenient.
-          package new_resource.parsed_package_name do
-            action :install
-          end
-
-          # service
-          service 'mysql' do
-            provider Chef::Provider::Service::Init::Debian
-            supports :restart => true
-            action [:start, :enable]
-          end
-
-          execute 'assign-root-password' do
-            cmd = '/usr/bin/mysqladmin'
-            cmd << ' -u root password '
-            cmd << Shellwords.escape(new_resource.parsed_server_root_password)
-            command cmd
-            action :run
-            only_if "/usr/bin/mysql -u root -e 'show databases;'"
-          end
-
-          template '/etc/mysql_grants.sql' do
-            cookbook 'mysql'
-            source 'grants/grants.sql.erb'
-            owner 'root'
-            group 'root'
-            mode '0600'
-            variables(:config => new_resource)
-            action :create
-            notifies :run, 'execute[install-grants]'
-          end
-
-          execute 'install-grants' do
-            cmd = '/usr/bin/mysql'
-            cmd << ' -u root '
-            cmd << "#{pass_string} < /etc/mysql_grants.sql"
-            command cmd
-            action :nothing
-            notifies :run, 'execute[create root marker]'
-          end
-
-          template '/etc/mysql/debian.cnf' do
-            cookbook 'mysql'
-            source 'debian/debian.cnf.erb'
-            owner 'root'
-            group 'root'
-            mode '0600'
-            variables(:config => new_resource)
-            action :create
-          end
-
-          #
-          directory include_dir do
-            owner 'mysql'
-            group 'mysql'
+          directory "#{new_resource.parsed_name} create include_dir" do
+            path include_dir
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
             mode '0750'
             recursive true
             action :create
           end
 
-          directory run_dir do
-            owner 'mysql'
-            group 'mysql'
-            mode '0755'
-            action :create
-            recursive true
-          end
-
-          directory new_resource.parsed_data_dir do
-            owner 'mysql'
-            group 'mysql'
+          directory "#{new_resource.parsed_name} create #{new_resource.parsed_data_dir}" do
+            path new_resource.parsed_data_dir
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
             mode '0750'
             recursive true
             action :create
           end
 
-          template '/etc/mysql/my.cnf' do
-            if new_resource.parsed_template_source.nil?
-              source "#{new_resource.parsed_version}/my.cnf.erb"
-              cookbook 'mysql'
-            else
-              source new_resource.parsed_template_source
-            end
-            owner 'mysql'
-            group 'mysql'
+          template "#{new_resource.parsed_name} create /etc/#{mysql_name}/my.cnf" do
+            path "/etc/#{mysql_name}/my.cnf"
+            source "#{new_resource.parsed_version}/my.cnf.erb"
+            cookbook 'mysql'
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
             mode '0600'
             variables(
               :data_dir => new_resource.parsed_data_dir,
@@ -138,35 +89,93 @@ class Chef
               :include_dir => include_dir
               )
             action :create
-            notifies :run, 'bash[move mysql data to datadir]'
-            notifies :restart, 'service[mysql]'
+#            notifies :restart, "service[#{new_resource.parsed_name} create #{mysql_name}]"
           end
+          
+          # execute "#{new_resource.parsed_name} create initialize mysql database" do
+          #   user new_resource.parsed_run_user
+          #   cwd new_resource.parsed_data_dir
+          #   cmd = '/usr/bin/mysql_install_db'
+          #   cmd << " --datadir=#{new_resource.parsed_data_dir}"
+          #   cmd << " --user=#{new_resource.parsed_run_user}"
+          #   command cmd
+          #   creates "#{new_resource.parsed_data_dir}/mysql/user.frm"
+          # end
 
-          bash 'move mysql data to datadir' do
-            user 'root'
-            code <<-EOH
-              service mysql stop \
-              && mv /var/lib/mysql/* #{new_resource.parsed_data_dir}
-              EOH
-            creates "#{new_resource.parsed_data_dir}/ibdata1"
-            creates "#{new_resource.parsed_data_dir}/ib_logfile0"
-            creates "#{new_resource.parsed_data_dir}/ib_logfile1"
-            action :nothing
-          end
+          # # service
+          # template "/etc/#{mysql_name}/debian.cnf" do
+          #   cookbook 'mysql'
+          #   source 'debian/debian.cnf.erb'
+          #   owner 'root'
+          #   group 'root'
+          #   mode '0600'
+          #   variables(:config => new_resource)
+          #   action :create
+          # end
 
-          execute 'create root marker' do
-            cmd = '/bin/echo'
-            cmd << " '#{Shellwords.escape(new_resource.parsed_server_root_password)}'"
-            cmd << ' > /etc/.mysql_root'
-            cmd << ' ;/bin/chmod 0600 /etc/.mysql_root'
-            command cmd
-            action :nothing
-          end
+          # # init script
+          # template "#{new_resource.parsed_name} create /etc/init.d/#{mysql_name}" do
+          #   path "/etc/init.d/#{mysql_name}"
+          #   source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
+          #   owner 'root'
+          #   group 'root'
+          #   mode '0755'
+          #   variables(:mysql_name => mysql_name)
+          #   cookbook 'mysql'
+          #   action :create
+          # end
+
+          # service "#{new_resource.parsed_name} create #{mysql_name}" do
+          #   service_name mysql_name
+          #   provider Chef::Provider::Service::Init::Debian
+          #   supports :restart => true
+          #   action [:start, :enable]
+          # end
+
+          # execute "#{new_resource.parsed_name} create assign-root-password" do
+          #   cmd = '/usr/bin/mysqladmin'
+          #   cmd << ' -u root password '
+          #   cmd << Shellwords.escape(new_resource.parsed_server_root_password)
+          #   command cmd
+          #   action :run
+          #   only_if "/usr/bin/mysql -u root -e 'show databases;'"
+          # end
+
+          # template "#{new_resource.parsed_name} create /etc/#{mysql_name}/grants.sql" do
+          #   path "/etc/#{mysql_name}/grants.sql"
+          #   cookbook 'mysql'
+          #   source 'grants/grants.sql.erb'
+          #   owner 'root'
+          #   group 'root'
+          #   mode '0600'
+          #   variables(:config => new_resource)
+          #   action :create
+          #   notifies :run, "execute[#{new_resource.parsed_name} create install-grants]"
+          # end
+
+          # execute "#{new_resource.parsed_name} create install-grants" do
+          #   cmd = '/usr/bin/mysql'
+          #   cmd << ' -u root '
+          #   cmd << "#{pass_string} < /etc/#{mysql_name}/grants.sql"
+          #   command cmd
+          #   action :nothing
+          #   notifies :run, "execute[#{new_resource.parsed_name} create root marker]"
+          # end
+
+          # execute "#{new_resource.parsed_name} create root marker" do
+          #   cmd = '/bin/echo'
+          #   cmd << " '#{Shellwords.escape(new_resource.parsed_server_root_password)}'"
+          #   cmd << " > /etc/#{mysql_name}/.mysql_root"
+          #   cmd << " ;/bin/chmod 0600 /etc/#{mysql_name}/.mysql_root"
+          #   command cmd
+          #   action :nothing
+          # end
         end
       end
 
       action :restart do
         service 'mysql' do
+          service_name mysql_name
           provider Chef::Provider::Service::Init::Debian
           supports :restart => true
           action :restart
@@ -175,6 +184,7 @@ class Chef
 
       action :reload do
         service 'mysql' do
+          service_name mysql_name
           provider Chef::Provider::Service::Init::Debian
           action :reload
         end
