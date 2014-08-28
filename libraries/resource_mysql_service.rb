@@ -16,10 +16,11 @@ class Chef
       attribute :remove_anonymous_users, :kind_of => [TrueClass, FalseClass], :default => true
       attribute :remove_test_database, :kind_of => [TrueClass, FalseClass], :default => true
       attribute :root_network_acl, :kind_of => Array, :default => []
+      attribute :run_user, :kind_of => String, :default => 'mysql'
+      attribute :run_group, :kind_of => String, :default => 'mysql'
       attribute :server_debian_password, :kind_of => String, :default => 'gnuslashlinux4ev4r'
       attribute :server_repl_password, :kind_of => String, :default => nil
       attribute :server_root_password, :kind_of => String, :default => 'ilikerandompasswords'
-      attribute :template_source, :kind_of => String, :default => nil
       attribute :version, :kind_of => String, :default => nil
     end
 
@@ -33,17 +34,21 @@ class Chef
       return data_dir if data_dir
       case node['platform_family']
       when 'rhel', 'fedora', 'suse', 'debian', 'omnios'
-        data_dir = '/var/lib/mysql'
+        data_dir = "/var/lib/#{mysql_name}"
       when 'smartos'
-        data_dir = '/opt/local/lib/mysql'
+        data_dir = "/opt/local/lib/#{mysql_name}"
       when 'freebsd'
-        data_dir = '/var/db/mysql'
+        data_dir = "/var/db/#{mysql_name}"
       end
       data_dir
     end
 
     def parsed_instance
       return instance if instance
+    end
+
+    def parsed_name
+      return name if name
     end
 
     def parsed_package_name
@@ -72,6 +77,14 @@ class Chef
       return root_network_acl if root_network_acl
     end
 
+    def parsed_run_user
+      return run_user if run_user
+    end
+
+    def parsed_run_group
+      return run_group if run_group
+    end
+
     def parsed_server_debian_password
       return server_debian_password if server_debian_password
     end
@@ -82,10 +95,6 @@ class Chef
 
     def parsed_server_root_password
       return server_root_password if server_root_password
-    end
-
-    def parsed_template_source
-      return template_source if template_source
     end
 
     def parsed_version
