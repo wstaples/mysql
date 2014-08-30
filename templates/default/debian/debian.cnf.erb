@@ -2,11 +2,11 @@
 host     = localhost
 user     = debian-sys-maint
 password = <%= @config.server_debian_password %>
-socket   = /var/run/mysqld/mysqld.sock
+socket   = <%= @socket_file %>
 
 [mysql_upgrade]
 host     = localhost
 user     = debian-sys-maint
 password = <%= @config.server_debian_password %>
-socket   = /var/run/mysqld/mysqld.sock
+socket   = <%= @socket_file %>
 basedir  = /usr

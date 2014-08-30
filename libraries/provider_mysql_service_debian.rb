@@ -18,8 +18,9 @@ class Chef
           # go home dpkg you're drunk
           bash "#{new_resource.parsed_name} create install mysql package" do
             code <<-EOF
-            mkdir -p /tmp/dpk-hack
+            mkdir -p /tmp/dpk-hack/bin
             ln -s /bin/true /tmp/dpk-hack/bash
+            ln -s /bin/true /tmp/dpk-hack/postinst
             ln -s /bin/true /tmp/dpk-hack/whiptail
             ln -s /bin/true /tmp/dpk-hack/initctl
             ln -s /bin/true /tmp/dpk-hack/invoke-rc.d
@@ -28,7 +29,9 @@ class Chef
             ln -s /bin/true /tmp/dpk-hack/stop
             ln -s /bin/true /tmp/dpk-hack/start-stop-daemon
             ln -s /bin/true /tmp/dpk-hack/service
+            cd /tmp/dpk-hack
             PATH=/tmp/dpk-hack:$PATH apt-get -y install #{new_resource.parsed_package_name}
+            cd / ; rm -rf /var/lib/mysql/* /tmp/dpk-hack/bin
             EOF
             not_if "/usr/bin/dpkg -l | awk '{ print $2 }' | grep #{new_resource.parsed_package_name}"
           end
@@ -41,13 +44,13 @@ class Chef
 
           user "#{new_resource.parsed_name} create #{new_resource.parsed_run_user}" do
             username new_resource.parsed_run_user
-            gid new_resource.parsed_run_group
+            gid new_resource.parsed_run_user
             system true if new_resource.parsed_run_group == 'mysql'
             action :create
           end
-          
+
           # support directories
-          directory "#{new_resource.parsed_name} create run_dir" do
+          directory "#{new_resource.parsed_name} create #{run_dir}" do
             path run_dir
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
@@ -56,7 +59,16 @@ class Chef
             recursive true
           end
 
-          directory "#{new_resource.parsed_name} create include_dir" do
+          directory "#{new_resource.parsed_name} create /etc/#{mysql_name}" do
+            path "/etc/#{mysql_name}"
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0750'
+            recursive true
+            action :create
+          end
+
+          directory "#{new_resource.parsed_name} create #{include_dir}" do
             path include_dir
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
@@ -82,6 +94,7 @@ class Chef
             group new_resource.parsed_run_group
             mode '0600'
             variables(
+              :run_user => new_resource.parsed_run_user,
               :data_dir => new_resource.parsed_data_dir,
               :pid_file => pid_file,
               :socket_file => socket_file,
@@ -89,42 +102,64 @@ class Chef
               :include_dir => include_dir
               )
             action :create
-#            notifies :restart, "service[#{new_resource.parsed_name} create #{mysql_name}]"
+            # notifies :restart, "service[#{new_resource.parsed_name} create #{mysql_name}]"
+          end
+
+          execute "#{new_resource.parsed_name} create initialize mysql database" do
+            user new_resource.parsed_run_user
+            cwd new_resource.parsed_data_dir
+            cmd = '/usr/bin/mysql_install_db'
+            cmd << ' --basedir=/usr'
+            cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
+            cmd << " --datadir=#{new_resource.parsed_data_dir}"
+            cmd << " --user=#{new_resource.parsed_run_user}"
+            command cmd
+            creates "#{new_resource.parsed_data_dir}/mysql/user.frm"
+          end
+
+          # service
+          template "/etc/#{mysql_name}/debian.cnf" do
+            cookbook 'mysql'
+            source 'debian/debian.cnf.erb'
+            owner 'root'
+            group 'root'
+            mode '0600'
+            variables(
+              :config => new_resource,
+              :socket_file => socket_file
+              )
+            action :create
+          end
+
+          # init script
+          template "#{new_resource.parsed_name} create /etc/init.d/#{mysql_name}" do
+            path "/etc/init.d/#{mysql_name}"
+            source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
+            owner 'root'
+            group 'root'
+            mode '0755'
+            variables(
+              :mysql_name => mysql_name,
+              :data_dir => new_resource.parsed_data_dir
+              )
+            cookbook 'mysql'
+            action :create
+          end
+
+          template "#{new_resource.parsed_name} create /etc/#{mysql_name}/debian-start" do
+            path "/etc/#{mysql_name}/debian-start"
+            cookbook 'mysql'
+            source 'debian/debian-start.erb'
+            owner 'root'
+            group 'root'
+            mode '0600'
+            variables(
+              :config => new_resource,
+              :socket_file => socket_file
+              )
+            action :create
           end
           
-          # execute "#{new_resource.parsed_name} create initialize mysql database" do
-          #   user new_resource.parsed_run_user
-          #   cwd new_resource.parsed_data_dir
-          #   cmd = '/usr/bin/mysql_install_db'
-          #   cmd << " --datadir=#{new_resource.parsed_data_dir}"
-          #   cmd << " --user=#{new_resource.parsed_run_user}"
-          #   command cmd
-          #   creates "#{new_resource.parsed_data_dir}/mysql/user.frm"
-          # end
-
-          # # service
-          # template "/etc/#{mysql_name}/debian.cnf" do
-          #   cookbook 'mysql'
-          #   source 'debian/debian.cnf.erb'
-          #   owner 'root'
-          #   group 'root'
-          #   mode '0600'
-          #   variables(:config => new_resource)
-          #   action :create
-          # end
-
-          # # init script
-          # template "#{new_resource.parsed_name} create /etc/init.d/#{mysql_name}" do
-          #   path "/etc/init.d/#{mysql_name}"
-          #   source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
-          #   owner 'root'
-          #   group 'root'
-          #   mode '0755'
-          #   variables(:mysql_name => mysql_name)
-          #   cookbook 'mysql'
-          #   action :create
-          # end
-
           # service "#{new_resource.parsed_name} create #{mysql_name}" do
           #   service_name mysql_name
           #   provider Chef::Provider::Service::Init::Debian

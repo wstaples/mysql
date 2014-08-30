@@ -22,12 +22,12 @@ module Mysql
       end
 
       def pid_file
-        pid_file = "/var/run/mysqld/#{mysqld_name}.pid"
+        pid_file = "#{run_dir}/#{mysqld_name}.pid"
         pid_file
       end
 
       def run_dir
-        run_dir = '/var/run/mysqld'
+        run_dir = "/var/run/#{mysqld_name}"
         run_dir
       end
 
@@ -54,7 +54,7 @@ module Mysql
       end
 
       def socket_file
-        socket_file = "/var/run/mysqld/#{mysqld_name}.sock"
+        socket_file = "/var/run/#{mysqld_name}/#{mysqld_name}.sock"
         socket_file
       end
     end
