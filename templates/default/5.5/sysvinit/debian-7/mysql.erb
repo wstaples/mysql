@@ -22,11 +22,11 @@ test -x /usr/bin/mysqld_safe || exit 0
 . /lib/lsb/init-functions
 
 SELF=$(cd $(dirname $0); pwd -P)/$(basename $0)
-CONF=/etc/mysql/my.cnf
-MYADMIN="/usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf"
+CONF=/etc/<%= @mysql_name %>/my.cnf
+MYADMIN="/usr/bin/mysqladmin --defaults-file=/etc/<%= @mysql_name %>/debian.cnf"
 
 # priority can be overriden and "-s" adds output to stderr
-ERR_LOGGER="logger -p daemon.err -t /etc/init.d/mysql -i"
+ERR_LOGGER="logger -p daemon.err -t /etc/init.d/<%= @mysql_name %> -i"
 
 # Safeguard (relative paths, core dumps..)
 cd /
@@ -35,13 +35,13 @@ umask 077
 # mysqladmin likes to read /root/.my.cnf. This is usually not what I want
 # as many admins e.g. only store a password without a username there and
 # so break my scripts.
-export HOME=/etc/mysql/
+export HOME=/etc/<%= @mysql_name %>/
 
 ## Fetch a particular option from mysql's invocation.
 #
 # Usage: void mysqld_get_param option
 mysqld_get_param() {
-	/usr/sbin/mysqld --print-defaults \
+	/usr/sbin/mysqld --defaults-file=/etc/<%= @mysql_name %>/my.cnf --print-defaults \
 		| tr " " "\n" \
 		| grep -- "--$1" \
 		| tail -n 1 \
@@ -51,9 +51,9 @@ mysqld_get_param() {
 ## Do some sanity checks before even trying to start mysqld.
 sanity_checks() {
   # check for config file
-  if [ ! -r /etc/mysql/my.cnf ]; then
-    log_warning_msg "$0: WARNING: /etc/mysql/my.cnf cannot be read. See README.Debian.gz"
-    echo                "WARNING: /etc/mysql/my.cnf cannot be read. See README.Debian.gz" | $ERR_LOGGER
+  if [ ! -r /etc/<%= @mysql_name %>/my.cnf ]; then
+    log_warning_msg "$0: WARNING: /etc/<%= @mysql_name %>/my.cnf cannot be read. See README.Debian.gz"
+    echo                "WARNING: /etc/<%= @mysql_name %>/my.cnf cannot be read. See README.Debian.gz" | $ERR_LOGGER
   fi
 
   # check for diskspace shortage
@@ -103,11 +103,11 @@ case "${1:-''}" in
 	   log_end_msg 0
 	else
 	    # Could be removed during boot
-	    test -e /var/run/mysqld || install -m 755 -o mysql -g root -d /var/run/mysqld
+	    test -e /var/run/<%= @mysql_name %> || install -m 755 -o mysql -g root -d /var/run/<%= @mysql_name %>
 
 	    # Start MySQL! 
-  	    /usr/bin/mysqld_safe > /dev/null 2>&1 &
-
+  	  /usr/bin/mysqld_safe --defaults-file=/etc/<%= @mysql_name %>/my.cnf > /dev/null 2>&1 &
+      
 	    # 6s was reported in #352070 to be too few when using ndbcluster
 	    for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14; do
                 sleep 1
@@ -117,7 +117,7 @@ case "${1:-''}" in
 	    if mysqld_status check_alive warn; then
                 log_end_msg 0
 	        # Now start mysqlcheck or whatever the admin wants.
-	        output=$(/etc/mysql/debian-start)
+	        output=$(/etc/<%= @mysql_name %>/debian-start)
 		[ -n "$output" ] && log_action_msg "$output"
 	    else
 	        log_end_msg 1
@@ -184,4 +184,3 @@ case "${1:-''}" in
 	exit 1
 	;;
 esac
-

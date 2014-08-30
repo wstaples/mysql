@@ -54,11 +54,11 @@ module MysqlCookbook
       def run_dir
         case node['platform_version'].to_i
         when 2014, 2013, 7, 6
-          run_dir = '/var/run/mysqld'
+          run_dir = "/var/run/#{mysql_name}"
         when 5
           case new_resource.parsed_version
           when '5.0'
-            run_dir = '/var/run/mysqld'
+            run_dir = "/var/run/#{mysql_name}"
           when '5.1'
             run_dir = '/opt/rh/mysql51/root/var/run/mysqld/'
           when '5.5'
