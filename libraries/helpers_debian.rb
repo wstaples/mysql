@@ -2,33 +2,27 @@ module MysqlCookbook
   module Helpers
     module Debian
       def mysql_version
-        mysql_version = new_resource.parsed_version
-        mysql_version
+        new_resource.parsed_version
       end
 
       def mysql_name
-        new_resource.parsed_instance == 'default' ? mysql_name = 'mysql' : mysql_name = "mysql-#{new_resource.parsed_instance}"
-        mysql_name
+        "mysql-#{new_resource.parsed_instance}"
       end
 
       def mysqld_name
-        new_resource.parsed_instance == 'default' ? mysql_name = 'mysqld' : mysql_name = "mysqld-#{new_resource.parsed_instance}"
-        mysql_name
+        new_resource.parsed_instance == 'default' ? 'mysqld' : "mysqld-#{new_resource.parsed_instance}"
       end
 
       def include_dir
-        include_dir = "/etc/#{mysql_name}/conf.d"
-        include_dir
+        "/etc/#{mysql_name}/conf.d"
       end
 
       def pid_file
-        pid_file = "#{run_dir}/#{mysqld_name}.pid"
-        pid_file
+        "#{run_dir}/#{mysqld_name}.pid"
       end
 
       def run_dir
-        run_dir = "/var/run/#{mysqld_name}"
-        run_dir
+        "/var/run/#{mysqld_name}"
       end
 
       def pass_string
@@ -46,16 +40,14 @@ module MysqlCookbook
       def platform_and_version
         case node['platform']
         when 'debian'
-          platform_and_version = "debian-#{node['platform_version'].to_i}"
+          "debian-#{node['platform_version'].to_i}"
         when 'ubuntu'
-          platform_and_version = "ubuntu-#{node['platform_version']}"
+          "ubuntu-#{node['platform_version']}"
         end
-        platform_and_version
       end
 
       def socket_file
-        socket_file = "/var/run/#{mysqld_name}/#{mysqld_name}.sock"
-        socket_file
+        "/var/run/#{mysqld_name}/#{mysqld_name}.sock"
       end
     end
   end
