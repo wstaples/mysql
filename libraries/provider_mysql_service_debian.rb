@@ -15,37 +15,42 @@ class Chef
         include Mysql::Helpers::Debian
 
         action :create do
-          # go home dpkg you're drunk
-          bash "#{new_resource.parsed_name} create install mysql package" do
-            code <<-EOF
-            mkdir -p /tmp/dpk-hack/bin
-            ln -s /bin/true /tmp/dpk-hack/bash
-            ln -s /bin/true /tmp/dpk-hack/postinst
-            ln -s /bin/true /tmp/dpk-hack/whiptail
-            ln -s /bin/true /tmp/dpk-hack/initctl
-            ln -s /bin/true /tmp/dpk-hack/invoke-rc.d
-            ln -s /bin/true /tmp/dpk-hack/restart
-            ln -s /bin/true /tmp/dpk-hack/start
-            ln -s /bin/true /tmp/dpk-hack/stop
-            ln -s /bin/true /tmp/dpk-hack/start-stop-daemon
-            ln -s /bin/true /tmp/dpk-hack/service
-            cd /tmp/dpk-hack
-            PATH=/tmp/dpk-hack:$PATH apt-get -y install #{new_resource.parsed_package_name}
-            cd / ; rm -rf /var/lib/mysql/* /tmp/dpk-hack/bin
-            EOF
-            not_if "/usr/bin/dpkg -l | awk '{ print $2 }' | grep #{new_resource.parsed_package_name}"
+          package "#{new_resource.parsed_name} create mysql" do
+            package_name new_resource.parsed_package_name
+            action :install
+          end
+
+          # We're not going to use the "system" mysql service, but
+          # instead create a bunch of new ones based on resource names.
+          service "#{new_resource.parsed_name} create #{mysql_name}" do
+            service_name 'mysql'
+            provider Chef::Provider::Service::Init
+            supports :restart => true, :status => true
+            action [:stop, :disable]
+          end
+
+          # Turns out that mysqld is hard coded to try and read
+          # /etc/mysql/my.cnf, and its presence during the bootstrap
+          # process causes problems when setting up multiple
+          # services.
+          file "#{new_resource.parsed_name} create /etc/mysql/my.cnf" do
+            path '/etc/mysql/my.cnf'
+            action :delete
+          end
+          
+          file "#{new_resource.parsed_name} create /etc/my.cnf" do
+            path '/etc/my.cnf'
+            action :delete
           end
 
           group "#{new_resource.parsed_name} create #{new_resource.parsed_run_group}" do
             group_name new_resource.parsed_run_group
-            system true if new_resource.parsed_run_group == 'mysql'
             action :create
           end
 
           user "#{new_resource.parsed_name} create #{new_resource.parsed_run_user}" do
             username new_resource.parsed_run_user
             gid new_resource.parsed_run_user
-            system true if new_resource.parsed_run_group == 'mysql'
             action :create
           end
 
@@ -67,7 +72,7 @@ class Chef
             recursive true
             action :create
           end
-
+          
           directory "#{new_resource.parsed_name} create #{include_dir}" do
             path include_dir
             owner new_resource.parsed_run_user
@@ -105,17 +110,30 @@ class Chef
             # notifies :restart, "service[#{new_resource.parsed_name} create #{mysql_name}]"
           end
 
-          execute "#{new_resource.parsed_name} create initialize mysql database" do
+          # initialize mysql database
+          bash "#{new_resource.parsed_name} create initialize mysql database" do
             user new_resource.parsed_run_user
             cwd new_resource.parsed_data_dir
-            cmd = '/usr/bin/mysql_install_db'
-            cmd << ' --basedir=/usr'
-            cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
-            cmd << " --datadir=#{new_resource.parsed_data_dir}"
-            cmd << " --user=#{new_resource.parsed_run_user}"
-            command cmd
-            creates "#{new_resource.parsed_data_dir}/mysql/user.frm"
+            code <<-EOF
+            /usr/bin/mysql_install_db \
+             --basedir=/usr \
+             --defaults-file=/etc/#{mysql_name}/my.cnf \
+             --datadir=#{new_resource.parsed_data_dir} \
+             --user=#{new_resource.parsed_run_user}
+            EOF
+            not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
+            action :run
           end
+          
+          # password_column_fix_query
+          # bash "#{new_resource.parsed_name} create password_column_fix_query" do
+          #   user new_resource.parsed_run_user
+          #   cwd new_resource.parsed_data_dir
+          #   code <<-EOF
+
+          #   EOF
+          #   not_if 'wat'
+          # end
 
           # service
           template "/etc/#{mysql_name}/debian.cnf" do
@@ -152,20 +170,21 @@ class Chef
             source 'debian/debian-start.erb'
             owner 'root'
             group 'root'
-            mode '0600'
+            mode '0755'
             variables(
               :config => new_resource,
+              :mysql_name => mysql_name,
               :socket_file => socket_file
               )
             action :create
           end
-          
-          # service "#{new_resource.parsed_name} create #{mysql_name}" do
-          #   service_name mysql_name
-          #   provider Chef::Provider::Service::Init::Debian
-          #   supports :restart => true
-          #   action [:start, :enable]
-          # end
+
+          service "#{new_resource.parsed_name} create #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true
+            action [:start]
+          end
 
           # execute "#{new_resource.parsed_name} create assign-root-password" do
           #   cmd = '/usr/bin/mysqladmin'
