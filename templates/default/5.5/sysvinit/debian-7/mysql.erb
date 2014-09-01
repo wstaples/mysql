@@ -102,9 +102,6 @@ case "${1:-''}" in
 	   log_progress_msg "already running"
 	   log_end_msg 0
 	else
-	    # Could be removed during boot
-	    test -e /var/run/<%= @mysql_name %> || install -m 755 -o mysql -g root -d /var/run/<%= @mysql_name %>
-
 	    # Start MySQL! 
   	  /usr/bin/mysqld_safe --defaults-file=/etc/<%= @mysql_name %>/my.cnf > /dev/null 2>&1 &
       

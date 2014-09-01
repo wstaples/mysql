@@ -179,12 +179,12 @@ class Chef
             action :create
           end
 
-          service "#{new_resource.parsed_name} create #{mysql_name}" do
-            service_name mysql_name
-            provider Chef::Provider::Service::Init
-            supports :restart => true
-            action [:start]
-          end
+          # service "#{new_resource.parsed_name} create #{mysql_name}" do
+          #   service_name mysql_name
+          #   provider Chef::Provider::Service::Init
+          #   supports :restart => true, :status => true
+          #   action [:start]
+          # end
 
           # execute "#{new_resource.parsed_name} create assign-root-password" do
           #   cmd = '/usr/bin/mysqladmin'
