@@ -22,7 +22,7 @@ module Mysql
       end
 
       def run_dir
-        "/var/run/#{mysqld_name}"
+        "/var/run/#{mysql_name}"
       end
 
       def pass_string
