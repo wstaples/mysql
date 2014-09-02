@@ -37,7 +37,7 @@ class Chef
             path '/etc/mysql/my.cnf'
             action :delete
           end
-          
+
           file "#{new_resource.parsed_name} create /etc/my.cnf" do
             path '/etc/my.cnf'
             action :delete
@@ -72,7 +72,7 @@ class Chef
             recursive true
             action :create
           end
-          
+
           directory "#{new_resource.parsed_name} create #{include_dir}" do
             path include_dir
             owner new_resource.parsed_run_user
@@ -123,17 +123,7 @@ class Chef
             EOF
             not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
             action :run
-          end
-          
-          # password_column_fix_query
-          # bash "#{new_resource.parsed_name} create password_column_fix_query" do
-          #   user new_resource.parsed_run_user
-          #   cwd new_resource.parsed_data_dir
-          #   code <<-EOF
-
-          #   EOF
-          #   not_if 'wat'
-          # end
+          end         
 
           # service
           template "/etc/#{mysql_name}/debian.cnf" do
@@ -179,13 +169,15 @@ class Chef
             action :create
           end
 
-          # service "#{new_resource.parsed_name} create #{mysql_name}" do
-          #   service_name mysql_name
-          #   provider Chef::Provider::Service::Init
-          #   supports :restart => true, :status => true
-          #   action [:start]
-          # end
+          service "#{new_resource.parsed_name} create #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true, :status => true
+            action [:start]
+          end
 
+          
+          
           # execute "#{new_resource.parsed_name} create assign-root-password" do
           #   cmd = '/usr/bin/mysqladmin'
           #   cmd << ' -u root password '
