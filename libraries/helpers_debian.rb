@@ -32,8 +32,6 @@ module MysqlCookbook
           pass_string = '-p ' + Shellwords.escape(new_resource.parsed_server_root_password)
         end
 
-        # definitely this one!
-        # pick me!
         pass_string = '-p ' + ::File.open("/etc/#{mysql_name}/.mysql_root").read.chomp if ::File.exist?("/etc/#{mysql_name}/.mysql_root")
         pass_string
       end
@@ -60,7 +58,7 @@ module MysqlCookbook
         "/usr/bin/mysql --defaults-file=/etc/#{mysql_name}/debian.cnf --skip-column-names"
       end
 
-      def set_mysql_password_charset
+      def repair_mysql_password_charset
         query = "ALTER TABLE user CHANGE Password Password char(41) character set utf8 collate utf8_bin DEFAULT '' NOT NULL;"
         info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
         info.exitstatus == 0 ? true : false
@@ -72,7 +70,7 @@ module MysqlCookbook
         info.stdout.chomp
       end
 
-      def set_debian_sys_maint
+      def repair_server_debian_password
         query = 'GRANT SELECT, INSERT, UPDATE, DELETE,'
         query << ' CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,'
         query << ' FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES,'
@@ -85,13 +83,13 @@ module MysqlCookbook
         info.exitstatus == 0 ? true : false
       end
 
-      def test_debian_sys_maint
+      def test_server_debian_password
         query = 'show databases;'
         info = shell_out("echo \"#{query}\" | #{debian_mysql_cmd}", :env => nil)
         info.exitstatus == 0 ? true : false
       end
 
-      def set_root_password
+      def repair_server_root_password
         cmd = '/usr/bin/mysqladmin'
         cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
         cmd << " -u root password #{pass_string}"
@@ -99,7 +97,7 @@ module MysqlCookbook
         info.exitstatus == 0 ? true : false
       end
 
-      def test_root_password
+      def test_server_root_password
         cmd = '/usr/bin/mysql'
         cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
         cmd << ' -u root'

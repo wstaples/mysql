@@ -175,23 +175,23 @@ class Chef
             action [:start]
           end
 
-          ruby_block "#{new_resource.parsed_name} :create set_mysql_password_charset" do
-            block { set_mysql_password_charset }
+          ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
+            block { repair_mysql_password_charset }
             not_if { mysql_password_charset == 'utf8' }
             action :run
           end
 
-          ruby_block "#{new_resource.parsed_name} :create set_debian_sys_maint" do
-            block { set_debian_sys_maint }
-            not_if { test_debian_sys_maint }
+          ruby_block "#{new_resource.parsed_name} :create repair_server_debian_password" do
+            block { repair_server_debian_password }
+            not_if { test_server_debian_password }
             action :run
           end
 
-          ruby_block "#{new_resource.parsed_name} :create set_root_password" do
-            block { set_root_password }
-            not_if { test_root_password }
-            action :run
-          end
+          # ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
+          #   block { repair_server_root_password }
+          #   not_if { test_server_root_password }
+          #   action :run
+          # end
 
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"
