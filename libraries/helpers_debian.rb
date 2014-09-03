@@ -58,7 +58,7 @@ module Mysql
         "/usr/bin/mysql --defaults-file=/etc/#{mysql_name}/debian.cnf --skip-column-names"
       end
 
-      def alter_mysql_password_charset
+      def set_mysql_password_charset
         query = "ALTER TABLE user CHANGE Password Password char(41) character set utf8 collate utf8_bin DEFAULT '' NOT NULL;"
         info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
         info.exitstatus == 0 ? true : false
@@ -70,7 +70,7 @@ module Mysql
         info.stdout.chomp
       end
 
-      def alter_debian_sys_maint
+      def set_debian_sys_maint
         query = "GRANT SELECT, INSERT, UPDATE, DELETE,"
         query << " CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,"
         query << " FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES,"
