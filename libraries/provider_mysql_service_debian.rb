@@ -22,7 +22,7 @@ class Chef
 
           # We're not going to use the "system" mysql service, but
           # instead create a bunch of new ones based on resource names.
-          service "#{new_resource.parsed_name} :create #{mysql_name}" do
+          service "#{new_resource.parsed_name} :create mysql" do
             service_name 'mysql'
             provider Chef::Provider::Service::Init
             supports :restart => true, :status => true
@@ -90,6 +90,7 @@ class Chef
             action :create
           end
 
+          # FIXME - pass new_resource as config
           template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/my.cnf" do
             path "/etc/#{mysql_name}/my.cnf"
             source "#{new_resource.parsed_version}/my.cnf.erb"
@@ -138,7 +139,7 @@ class Chef
             action :create
           end
 
-          # init script
+          # sysvinit
           template "#{new_resource.parsed_name} :create /etc/init.d/#{mysql_name}" do
             path "/etc/init.d/#{mysql_name}"
             source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
@@ -175,23 +176,36 @@ class Chef
             action [:start]
           end
 
-          ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
-            block { repair_mysql_password_charset }
-            not_if { mysql_password_charset == 'utf8' }
+          # database work
+          ruby_block 'testing the things' do
+            block do
+              puts 'WORKING mysql_w_network_stashed_pass' if mysql_w_network_stashed_pass_working?
+              puts 'WORKING mysql_w_network_resource_pass' if mysql_w_network_resource_pass_working?
+              puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
+              puts 'WORKING mysql_w_socket_resource_pass' if mysql_w_socket_resource_pass_working?
+              puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
+            end
             action :run
-          end
+          end          
 
-          ruby_block "#{new_resource.parsed_name} :create repair_server_debian_password" do
-            block { repair_server_debian_password }
-            not_if { test_server_debian_password }
-            action :run
-          end
+          # this depends on mysql_w_socket =(
+          # ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
+          #   block { repair_mysql_password_charset }            
+          #   not_if { mysql_password_charset == 'utf8' }
+          #   action :run
+          # end
 
-          ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
-            block { repair_server_root_password }
-            not_if { test_server_root_password }
-            action :run
-          end
+          # ruby_block "#{new_resource.parsed_name} :create repair_server_debian_password" do
+          #   block { repair_server_debian_password }
+          #   not_if { test_server_debian_password }
+          #   action :run
+          # end
+
+          # ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
+          #   block { repair_server_root_password }
+          #   not_if { test_server_root_password }
+          #   action :run
+          # end
 
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"
