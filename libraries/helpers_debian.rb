@@ -69,7 +69,7 @@ module MysqlCookbook
         info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
         info.stdout.chomp
       end
-      
+
       def repair_server_debian_password
         query = 'GRANT SELECT, INSERT, UPDATE, DELETE,'
         query << ' CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,'
