@@ -1,10 +1,10 @@
 require 'chef/mixin/shell_out'
- 
+
 module Mysql
   module Helpers
     module Debian
       include Chef::Mixin::ShellOut
-      
+
       def mysql_version
         new_resource.parsed_version
       end
@@ -54,18 +54,58 @@ module Mysql
         "/usr/bin/mysql -S #{socket_file} --skip-column-names -D mysql"
       end
 
+      def debian_mysql_cmd
+        "/usr/bin/mysql --defaults-file=/etc/#{mysql_name}/debian.cnf --skip-column-names"
+      end
+
       def alter_mysql_password_charset
         query = "ALTER TABLE user CHANGE Password Password char(41) character set utf8 collate utf8_bin DEFAULT '' NOT NULL;"
         info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
-        info.stdout.chomp
+        info.exitstatus == 0 ? true : false
       end
-      
+
       def mysql_password_charset
         query = "SELECT CHARACTER_SET_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'user' AND COLUMN_NAME = 'Password';"
         info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
         info.stdout.chomp
       end
-      
+
+      def alter_debian_sys_maint
+        query = "GRANT SELECT, INSERT, UPDATE, DELETE,"
+        query << " CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,"
+        query << " FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES,"
+        query << " SUPER, CREATE TEMPORARY TABLES, LOCK TABLES,"
+        query << " EXECUTE, REPLICATION SLAVE,"
+        query << " REPLICATION CLIENT ON *.* TO 'debian-sys-maint'@'localhost'"
+        query << " IDENTIFIED BY '#{new_resource.parsed_server_debian_password}'"
+        query << " WITH GRANT OPTION;"
+        info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
+        info.exitstatus == 0 ? true : false
+      end
+
+      def test_debian_sys_maint
+        query = 'show databases;'
+        info = shell_out("echo \"#{query}\" | #{debian_mysql_cmd}", :env => nil)
+        info.exitstatus == 0 ? true : false
+      end
+
+      def set_root_password
+        cmd = '/usr/bin/mysqladmin'
+        cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
+        cmd << " -u root password #{pass_string}"
+        info = shell_out(cmd, :env => nil)
+        info.exitstatus == 0 ? true : false
+      end
+
+      def test_root_password
+        cmd = '/usr/bin/mysql'
+        cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
+        cmd << ' -u root'
+        cmd << " -e 'show databases;'"
+        # puts "SEANDEBUG: #{new_resource.parsed_server_root_password}"
+        info = shell_out(cmd, :env => nil)
+        info.exitstatus == 0 ? true : false
+      end
     end
   end
 end
