@@ -1,6 +1,10 @@
+require 'chef/mixin/shell_out'
+
 module MysqlCookbook
   module Helpers
     module Debian
+      include Chef::Mixin::ShellOut
+      
       def mysql_version
         new_resource.parsed_version
       end
@@ -47,18 +51,20 @@ module MysqlCookbook
       end
 
       def mysql_cmd_socket
-        "/usr/bin/mysql -S #{socket_file} -D mysql"
+        "/usr/bin/mysql -S #{socket_file} --skip-column-names -D mysql"
       end
 
-      def mysql_utf8_password
-        "ALTER TABLE user CHANGE Password Password char(41) character set utf8 collate utf8_bin DEFAULT '' NOT NULL;"
+      def alter_mysql_password_charset
+        query = "ALTER TABLE user CHANGE Password Password char(41) character set utf8 collate utf8_bin DEFAULT '' NOT NULL;"
+        info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
+        info.stdout.chomp
       end
-
-      def mysql_utf8_password_guard
-        "echo \"show full columns from user like 'Password';\" | #{mysql_cmd_socket} | grep ^Password | awk '{ print $3 }'"
-      end
-
       
+      def mysql_password_charset
+        query = "SELECT CHARACTER_SET_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'user' AND COLUMN_NAME = 'Password';"
+        info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
+        info.stdout.chomp
+      end
       
     end
   end

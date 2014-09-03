@@ -1,5 +1,4 @@
 require 'chef/provider/lwrp_base'
-require 'shellwords'
 require_relative 'helpers_debian'
 
 class Chef
@@ -15,14 +14,14 @@ class Chef
         include MysqlCookbook::Helpers::Debian
 
         action :create do
-          package "#{new_resource.parsed_name} create mysql" do
+          package "#{new_resource.parsed_name} :create mysql" do
             package_name new_resource.parsed_package_name
             action :install
           end
 
           # We're not going to use the "system" mysql service, but
           # instead create a bunch of new ones based on resource names.
-          service "#{new_resource.parsed_name} create #{mysql_name}" do
+          service "#{new_resource.parsed_name} :create #{mysql_name}" do
             service_name 'mysql'
             provider Chef::Provider::Service::Init
             supports :restart => true, :status => true
@@ -33,29 +32,29 @@ class Chef
           # /etc/mysql/my.cnf, and its presence during the bootstrap
           # process causes problems when setting up multiple
           # services.
-          file "#{new_resource.parsed_name} create /etc/mysql/my.cnf" do
+          file "#{new_resource.parsed_name} :create /etc/mysql/my.cnf" do
             path '/etc/mysql/my.cnf'
             action :delete
           end
 
-          file "#{new_resource.parsed_name} create /etc/my.cnf" do
+          file "#{new_resource.parsed_name} :create /etc/my.cnf" do
             path '/etc/my.cnf'
             action :delete
           end
 
-          group "#{new_resource.parsed_name} create #{new_resource.parsed_run_group}" do
+          group "#{new_resource.parsed_name} :create #{new_resource.parsed_run_group}" do
             group_name new_resource.parsed_run_group
             action :create
           end
 
-          user "#{new_resource.parsed_name} create #{new_resource.parsed_run_user}" do
+          user "#{new_resource.parsed_name} :create #{new_resource.parsed_run_user}" do
             username new_resource.parsed_run_user
             gid new_resource.parsed_run_user
             action :create
           end
 
           # support directories
-          directory "#{new_resource.parsed_name} create #{run_dir}" do
+          directory "#{new_resource.parsed_name} :create #{run_dir}" do
             path run_dir
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
@@ -64,7 +63,7 @@ class Chef
             recursive true
           end
 
-          directory "#{new_resource.parsed_name} create /etc/#{mysql_name}" do
+          directory "#{new_resource.parsed_name} :create /etc/#{mysql_name}" do
             path "/etc/#{mysql_name}"
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
@@ -73,7 +72,7 @@ class Chef
             action :create
           end
 
-          directory "#{new_resource.parsed_name} create #{include_dir}" do
+          directory "#{new_resource.parsed_name} :create #{include_dir}" do
             path include_dir
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
@@ -82,7 +81,7 @@ class Chef
             action :create
           end
 
-          directory "#{new_resource.parsed_name} create #{new_resource.parsed_data_dir}" do
+          directory "#{new_resource.parsed_name} :create #{new_resource.parsed_data_dir}" do
             path new_resource.parsed_data_dir
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
@@ -91,7 +90,7 @@ class Chef
             action :create
           end
 
-          template "#{new_resource.parsed_name} create /etc/#{mysql_name}/my.cnf" do
+          template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/my.cnf" do
             path "/etc/#{mysql_name}/my.cnf"
             source "#{new_resource.parsed_version}/my.cnf.erb"
             cookbook 'mysql'
@@ -107,11 +106,11 @@ class Chef
               :include_dir => include_dir
               )
             action :create
-            # notifies :restart, "service[#{new_resource.parsed_name} create #{mysql_name}]"
+            # notifies :restart, "service[#{new_resource.parsed_name} :create #{mysql_name}]"
           end
 
           # initialize mysql database
-          bash "#{new_resource.parsed_name} create initialize mysql database" do
+          bash "#{new_resource.parsed_name} :create initialize mysql database" do
             user new_resource.parsed_run_user
             cwd new_resource.parsed_data_dir
             code <<-EOF
@@ -140,7 +139,7 @@ class Chef
           end
 
           # init script
-          template "#{new_resource.parsed_name} create /etc/init.d/#{mysql_name}" do
+          template "#{new_resource.parsed_name} :create /etc/init.d/#{mysql_name}" do
             path "/etc/init.d/#{mysql_name}"
             source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
             owner 'root'
@@ -154,7 +153,7 @@ class Chef
             action :create
           end
 
-          template "#{new_resource.parsed_name} create /etc/#{mysql_name}/debian-start" do
+          template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/debian-start" do
             path "/etc/#{mysql_name}/debian-start"
             cookbook 'mysql'
             source 'debian/debian-start.erb'
@@ -169,16 +168,22 @@ class Chef
             action :create
           end
 
-          service "#{new_resource.parsed_name} create #{mysql_name}" do
+          service "#{new_resource.parsed_name} :create #{mysql_name}" do
             service_name mysql_name
             provider Chef::Provider::Service::Init
             supports :restart => true, :status => true
             action [:start]
           end
 
+          ruby_block "#{new_resource.parsed_name} :create set mysql database password charset" do
+            block do
+              alter_mysql_password_charset
+            end
+            not_if { mysql_password_charset == 'utf8' }
+            action :run
+          end
           
-          
-          # execute "#{new_resource.parsed_name} create assign-root-password" do
+          # execute "#{new_resource.parsed_name} :create assign-root-password" do
           #   cmd = '/usr/bin/mysqladmin'
           #   cmd << ' -u root password '
           #   cmd << Shellwords.escape(new_resource.parsed_server_root_password)
@@ -187,7 +192,7 @@ class Chef
           #   only_if "/usr/bin/mysql -u root -e 'show databases;'"
           # end
 
-          # template "#{new_resource.parsed_name} create /etc/#{mysql_name}/grants.sql" do
+          # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"
           #   cookbook 'mysql'
           #   source 'grants/grants.sql.erb'
@@ -196,19 +201,19 @@ class Chef
           #   mode '0600'
           #   variables(:config => new_resource)
           #   action :create
-          #   notifies :run, "execute[#{new_resource.parsed_name} create install-grants]"
+          #   notifies :run, "execute[#{new_resource.parsed_name} :create install-grants]"
           # end
 
-          # execute "#{new_resource.parsed_name} create install-grants" do
+          # execute "#{new_resource.parsed_name} :create install-grants" do
           #   cmd = '/usr/bin/mysql'
           #   cmd << ' -u root '
           #   cmd << "#{pass_string} < /etc/#{mysql_name}/grants.sql"
           #   command cmd
           #   action :nothing
-          #   notifies :run, "execute[#{new_resource.parsed_name} create root marker]"
+          #   notifies :run, "execute[#{new_resource.parsed_name} :create root marker]"
           # end
 
-          # execute "#{new_resource.parsed_name} create root marker" do
+          # execute "#{new_resource.parsed_name} :create root marker" do
           #   cmd = '/bin/echo'
           #   cmd << " '#{Shellwords.escape(new_resource.parsed_server_root_password)}'"
           #   cmd << " > /etc/#{mysql_name}/.mysql_root"
