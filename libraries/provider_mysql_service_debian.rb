@@ -35,6 +35,7 @@ class Chef
           file "#{new_resource.parsed_name} :create /etc/mysql/my.cnf" do
             path '/etc/mysql/my.cnf'
             action :delete
+<<<<<<< HEAD
           end
 
           file "#{new_resource.parsed_name} :create /etc/my.cnf" do
@@ -42,6 +43,15 @@ class Chef
             action :delete
           end
 
+=======
+          end
+
+          file "#{new_resource.parsed_name} :create /etc/my.cnf" do
+            path '/etc/my.cnf'
+            action :delete
+          end
+
+>>>>>>> 84058e53e9cf40de0bc193311235b58b477e6c81
           group "#{new_resource.parsed_name} :create #{new_resource.parsed_run_group}" do
             group_name new_resource.parsed_run_group
             action :create
@@ -122,6 +132,7 @@ class Chef
             EOF
             not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
             action :run
+<<<<<<< HEAD
           end
 
           # service
@@ -192,6 +203,84 @@ class Chef
           #   not_if { test_server_root_password }
           #   action :run
           # end
+=======
+          end         
+
+          # service
+          template "/etc/#{mysql_name}/debian.cnf" do
+            cookbook 'mysql'
+            source 'debian/debian.cnf.erb'
+            owner 'root'
+            group 'root'
+            mode '0600'
+            variables(
+              :config => new_resource,
+              :socket_file => socket_file
+              )
+            action :create
+          end
+
+          # init script
+          template "#{new_resource.parsed_name} :create /etc/init.d/#{mysql_name}" do
+            path "/etc/init.d/#{mysql_name}"
+            source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
+            owner 'root'
+            group 'root'
+            mode '0755'
+            variables(
+              :mysql_name => mysql_name,
+              :data_dir => new_resource.parsed_data_dir
+              )
+            cookbook 'mysql'
+            action :create
+          end
+
+          template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/debian-start" do
+            path "/etc/#{mysql_name}/debian-start"
+            cookbook 'mysql'
+            source 'debian/debian-start.erb'
+            owner 'root'
+            group 'root'
+            mode '0755'
+            variables(
+              :config => new_resource,
+              :mysql_name => mysql_name,
+              :socket_file => socket_file
+              )
+            action :create
+          end
+          
+          service "#{new_resource.parsed_name} :create #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true, :status => true
+            action [:start]
+          end
+
+          ruby_block "#{new_resource.parsed_name} :create set mysql database charset" do
+            block do
+              alter_mysql_password_charset
+            end
+            not_if { mysql_password_charset == 'utf8' }
+            action :run
+          end
+
+          ruby_block "#{new_resource.parsed_name} :create set debian-sys-maint" do
+            block do
+              set_debian_sys_maint
+            end
+            not_if { test_debian_sys_maint }
+            action :run
+          end
+
+          ruby_block "#{new_resource.parsed_name} :create set root password" do
+            block do
+              set_root_password
+            end
+            not_if { test_root_password }
+            action :run
+          end         
+>>>>>>> 84058e53e9cf40de0bc193311235b58b477e6c81
 
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"
