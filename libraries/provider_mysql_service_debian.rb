@@ -187,11 +187,11 @@ class Chef
             action :run
           end
 
-          # ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
-          #   block { repair_server_root_password }
-          #   not_if { test_server_root_password }
-          #   action :run
-          # end
+          ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
+            block { repair_server_root_password }
+            not_if { test_server_root_password }
+            action :run
+          end
 
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"

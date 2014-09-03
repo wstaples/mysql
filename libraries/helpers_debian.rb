@@ -92,7 +92,8 @@ module MysqlCookbook
       def repair_server_root_password
         cmd = '/usr/bin/mysqladmin'
         cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
-        cmd << " -u root password #{pass_string}"
+        cmd << " -u root password '#{new_resource.parsed_server_root_password}'"
+        puts "SEANDEBUG: cmd #{cmd}"
         info = shell_out(cmd, :env => nil)
         info.exitstatus == 0 ? true : false
       end
@@ -105,6 +106,7 @@ module MysqlCookbook
         puts "SEANDEBUG: #{new_resource.parsed_server_root_password}"
         info = shell_out(cmd, :env => nil)
         info.exitstatus == 0 ? true : false
+        false
       end
     end
   end
