@@ -30,9 +30,8 @@ class Chef
           end
 
           # Turns out that mysqld is hard coded to try and read
-          # /etc/mysql/my.cnf, and its presence during the bootstrap
-          # process causes problems when setting up multiple
-          # services.
+          # /etc/mysql/my.cnf, and its presence causes problems when
+          # setting up multiple services.
           file "#{new_resource.parsed_name} :create /etc/mysql/my.cnf" do
             path '/etc/mysql/my.cnf'
             action :delete
@@ -184,9 +183,9 @@ class Chef
             action :run
           end
 
-          ruby_block "#{new_resource.parsed_name} :create configure debian-sys-maint" do
+          ruby_block "#{new_resource.parsed_name} :create set debian-sys-maint" do
             block do
-              alter_debian_sys_maint
+              set_debian_sys_maint
             end
             not_if { test_debian_sys_maint }
             action :run
