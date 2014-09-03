@@ -34,7 +34,7 @@ mysql_service 'instance-1' do
   root_network_acl ['0.0.0.0']
   server_root_password 'never gonna give you up'
   server_debian_password 'never gonna let you down'
-  server_repl_password 'never gonna run around and desert you'
+  server_repl_password 'never_gonna_run_around_and_desert_you'
   action :create
 end
 

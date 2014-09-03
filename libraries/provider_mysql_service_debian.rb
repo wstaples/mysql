@@ -1,5 +1,6 @@
 require 'chef/provider/lwrp_base'
 require_relative 'helpers_debian'
+require 'shellwords'
 
 class Chef
   class Provider
@@ -167,7 +168,7 @@ class Chef
               )
             action :create
           end
-
+          
           service "#{new_resource.parsed_name} :create #{mysql_name}" do
             service_name mysql_name
             provider Chef::Provider::Service::Init
@@ -175,22 +176,29 @@ class Chef
             action [:start]
           end
 
-          ruby_block "#{new_resource.parsed_name} :create set mysql database password charset" do
+          ruby_block "#{new_resource.parsed_name} :create set mysql database charset" do
             block do
               alter_mysql_password_charset
             end
             not_if { mysql_password_charset == 'utf8' }
             action :run
           end
-          
-          # execute "#{new_resource.parsed_name} :create assign-root-password" do
-          #   cmd = '/usr/bin/mysqladmin'
-          #   cmd << ' -u root password '
-          #   cmd << Shellwords.escape(new_resource.parsed_server_root_password)
-          #   command cmd
-          #   action :run
-          #   only_if "/usr/bin/mysql -u root -e 'show databases;'"
-          # end
+
+          ruby_block "#{new_resource.parsed_name} :create configure debian-sys-maint" do
+            block do
+              alter_debian_sys_maint
+            end
+            not_if { test_debian_sys_maint }
+            action :run
+          end
+
+          ruby_block "#{new_resource.parsed_name} :create set root password" do
+            block do
+              set_root_password
+            end
+            not_if { test_root_password }
+            action :run
+          end         
 
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"
