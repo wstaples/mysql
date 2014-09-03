@@ -122,7 +122,7 @@ class Chef
             EOF
             not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
             action :run
-          end         
+          end
 
           # service
           template "/etc/#{mysql_name}/debian.cnf" do
@@ -167,7 +167,7 @@ class Chef
               )
             action :create
           end
-          
+
           service "#{new_resource.parsed_name} :create #{mysql_name}" do
             service_name mysql_name
             provider Chef::Provider::Service::Init
@@ -175,29 +175,23 @@ class Chef
             action [:start]
           end
 
-          ruby_block "#{new_resource.parsed_name} :create set mysql database charset" do
-            block do
-              alter_mysql_password_charset
-            end
+          ruby_block "#{new_resource.parsed_name} :create set_mysql_password_charset" do
+            block { set_mysql_password_charset }
             not_if { mysql_password_charset == 'utf8' }
             action :run
           end
 
-          ruby_block "#{new_resource.parsed_name} :create set debian-sys-maint" do
-            block do
-              set_debian_sys_maint
-            end
+          ruby_block "#{new_resource.parsed_name} :create set_debian_sys_maint" do
+            block { set_debian_sys_maint }
             not_if { test_debian_sys_maint }
             action :run
           end
 
-          ruby_block "#{new_resource.parsed_name} :create set root password" do
-            block do
-              set_root_password
-            end
+          ruby_block "#{new_resource.parsed_name} :create set_root_password" do
+            block { set_root_password }
             not_if { test_root_password }
             action :run
-          end         
+          end
 
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"

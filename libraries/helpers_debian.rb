@@ -71,14 +71,14 @@ module MysqlCookbook
       end
 
       def set_debian_sys_maint
-        query = "GRANT SELECT, INSERT, UPDATE, DELETE,"
-        query << " CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,"
-        query << " FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES,"
-        query << " SUPER, CREATE TEMPORARY TABLES, LOCK TABLES,"
-        query << " EXECUTE, REPLICATION SLAVE,"
+        query = 'GRANT SELECT, INSERT, UPDATE, DELETE,'
+        query << ' CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,'
+        query << ' FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES,'
+        query << ' SUPER, CREATE TEMPORARY TABLES, LOCK TABLES,'
+        query << ' EXECUTE, REPLICATION SLAVE,'
         query << " REPLICATION CLIENT ON *.* TO 'debian-sys-maint'@'localhost'"
         query << " IDENTIFIED BY '#{new_resource.parsed_server_debian_password}'"
-        query << " WITH GRANT OPTION;"
+        query << ' WITH GRANT OPTION;'
         info = shell_out("echo \"#{query}\" | #{mysql_cmd_socket}", :env => nil)
         info.exitstatus == 0 ? true : false
       end
@@ -102,7 +102,7 @@ module MysqlCookbook
         cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
         cmd << ' -u root'
         cmd << " -e 'show databases;'"
-        # puts "SEANDEBUG: #{new_resource.parsed_server_root_password}"
+        puts "SEANDEBUG: #{new_resource.parsed_server_root_password}"
         info = shell_out(cmd, :env => nil)
         info.exitstatus == 0 ? true : false
       end
