@@ -22,12 +22,12 @@ module MysqlCookbook
         "mysql-#{new_resource.parsed_instance}"
       end
 
-      # FIXME - select method
+      # FIXME: select method
       def mysql_password_charset
         query = "SELECT CHARACTER_SET_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'user' AND COLUMN_NAME = 'Password';"
-        info = shell_out("echo \"#{query}\" | #{mysql_w_socket}", :env => nil )
+        info = shell_out("echo \"#{query}\" | #{mysql_w_socket}", :env => nil)
         # puts "SEANDEBUG: echo \"#{query}\" | #{mysql_w_socket}"
-        # puts "SEANDEBUG: info.stdout.chomp #{info.stdout.chomp}"        
+        # puts "SEANDEBUG: info.stdout.chomp #{info.stdout.chomp}"
         info.stdout.chomp
       end
 
@@ -43,11 +43,11 @@ module MysqlCookbook
         query = 'show databases;'
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_network_stashed_pass}"
-        cmd << " --skip-column-names"
-        info = shell_out!(cmd, :env => nil, :returns => [0,1])
+        cmd << ' --skip-column-names'
+        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
-      
+
       def mysql_w_network_resource_pass
         "/usr/bin/mysql -u root -h localhost -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
       end
@@ -56,11 +56,11 @@ module MysqlCookbook
         query = 'show databases;'
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_network_resource_pass}"
-        cmd << " --skip-column-names"
-        info = shell_out!(cmd, :env => nil, :returns => [0,1])
+        cmd << ' --skip-column-names'
+        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
-      
+
       def mysql_w_socket_stashed_pass
         "/usr/bin/mysql -S #{socket_file} -p#{Shellwords.escape(stashed_pass)}"
       end
@@ -69,11 +69,11 @@ module MysqlCookbook
         query = 'show databases;'
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_socket_stashed_pass}"
-        cmd << " --skip-column-names"
-        info = shell_out!(cmd, :env => nil, :returns => [0,1])
+        cmd << ' --skip-column-names'
+        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
-      
+
       def mysql_w_socket_resource_pass
         "/usr/bin/mysql -S #{socket_file} -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
       end
@@ -82,11 +82,11 @@ module MysqlCookbook
         query = 'show databases;'
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_socket_resource_pass}"
-        cmd << " --skip-column-names"
-        info = shell_out!(cmd, :env => nil, :returns => [0,1])
+        cmd << ' --skip-column-names'
+        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
-      
+
       def mysql_w_socket
         "/usr/bin/mysql -S #{socket_file}"
       end
@@ -95,11 +95,11 @@ module MysqlCookbook
         query = 'show databases;'
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_socket}"
-        cmd << " --skip-column-names"
-        info = shell_out!(cmd, :env => nil, :returns => [0,1])
+        cmd << ' --skip-column-names'
+        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
-      
+
       def platform_and_version
         case node['platform']
         when 'debian'
@@ -113,14 +113,14 @@ module MysqlCookbook
         "#{run_dir}/#{mysql_name}.pid"
       end
 
-      # FIXME - select method
+      # FIXME: select method
       def repair_mysql_password_charset
         query = "ALTER TABLE user CHANGE Password Password char(41) character set utf8 collate utf8_bin DEFAULT '' NOT NULL;"
         info = shell_out("echo \"#{query}\" | #{mysql_w_socket}", :env => nil)
         info.exitstatus == 0 ? true : false
       end
 
-      # FIXME - select method
+      # FIXME: select method
       def repair_server_debian_password
         query = 'GRANT SELECT, INSERT, UPDATE, DELETE,'
         query << ' CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,'
@@ -138,10 +138,10 @@ module MysqlCookbook
         query = "UPDATE mysql.user SET Password=PASSWORD('#{new_resource.parsed_server_root_password}')"
         query << " WHERE User='root'; FLUSH PRIVILEGES;"
         info = shell_out("echo \"#{query}\" | #{mysql_w_socket}", :env => nil)
-        info.stdout.chomp        
+        info.stdout.chomp
         info.exitstatus == 0 ? true : false
       end
-      
+
       def run_dir
         "/var/run/#{mysql_name}"
       end
@@ -152,7 +152,7 @@ module MysqlCookbook
 
       def stashed_pass
         return ::File.open("/etc/#{mysql_name}/.mysql_root").read.chomp if ::File.exist?("/etc/#{mysql_name}/.mysql_root")
-        return ''
+        ''
       end
 
       def test_server_debian_password
@@ -161,7 +161,7 @@ module MysqlCookbook
         info.exitstatus == 0 ? true : false
       end
 
-      # FIXME - select method
+      # FIXME: select method
       def test_server_root_password
         cmd = '/usr/bin/mysql'
         cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"

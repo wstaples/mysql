@@ -90,7 +90,7 @@ class Chef
             action :create
           end
 
-          # FIXME - pass new_resource as config
+          # FIXME: pass new_resource as config
           template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/my.cnf" do
             path "/etc/#{mysql_name}/my.cnf"
             source "#{new_resource.parsed_version}/my.cnf.erb"
@@ -186,11 +186,11 @@ class Chef
               puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
             end
             action :run
-          end          
+          end
 
           # this depends on mysql_w_socket =(
           # ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
-          #   block { repair_mysql_password_charset }            
+          #   block { repair_mysql_password_charset }
           #   not_if { mysql_password_charset == 'utf8' }
           #   action :run
           # end
