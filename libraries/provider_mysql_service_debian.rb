@@ -175,13 +175,6 @@ class Chef
             supports :restart => true, :status => true
             action [:start]
           end
-
-          # database work
-          puts 'WORKING mysql_w_network_resource_pass' if mysql_w_network_resource_pass_working?
-          puts 'WORKING mysql_w_network_stashed_pass' if mysql_w_network_stashed_pass_working?
-          puts 'WORKING mysql_w_socket_resource_pass' if mysql_w_socket_resource_pass_working?
-          puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
-          puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
           
           ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
             block { repair_mysql_password_charset }
@@ -229,8 +222,6 @@ class Chef
           #   action :nothing
           #   notifies :run, "execute[#{new_resource.parsed_name} :create root marker]"
           # end
-
-
         end
       end
 

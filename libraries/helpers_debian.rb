@@ -168,7 +168,6 @@ module MysqlCookbook
         cmd << ' -u root'
         cmd << " -e 'show databases;'"
         cmd << " -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
-        puts "SEANDEBUG: #{cmd}"
         info = shell_out(cmd, :env => nil)
         info.exitstatus == 0 ? true : false
       end

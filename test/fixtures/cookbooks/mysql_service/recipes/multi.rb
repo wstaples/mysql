@@ -32,8 +32,8 @@ mysql_service 'instance-1' do
   remove_anonymous_users true
   remove_test_database true
   root_network_acl ['0.0.0.0']
-  # server_root_password 'never gonna give you up'
-  server_root_password 'we got the funk'
+  server_root_password 'never gonna give you up'
+  # server_root_password 'we got the funk'
   server_debian_password 'never gonna let you down'
   server_repl_password 'never gonna run around and desert you'
   action :create
