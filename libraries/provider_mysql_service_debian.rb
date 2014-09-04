@@ -179,10 +179,10 @@ class Chef
           # database work
           ruby_block 'testing the things' do
             block do
-              puts 'WORKING mysql_w_network_stashed_pass' if mysql_w_network_stashed_pass_working?
               puts 'WORKING mysql_w_network_resource_pass' if mysql_w_network_resource_pass_working?
-              puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
+              puts 'WORKING mysql_w_network_stashed_pass' if mysql_w_network_stashed_pass_working?
               puts 'WORKING mysql_w_socket_resource_pass' if mysql_w_socket_resource_pass_working?
+              puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
               puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
             end
             action :run

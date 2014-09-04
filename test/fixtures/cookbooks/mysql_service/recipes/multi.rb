@@ -5,7 +5,6 @@ group 'alice' do
 end
 
 user 'alice' do
-  gid 'alice'
   action :create
 end
 
@@ -14,7 +13,6 @@ group 'bob' do
 end
 
 user 'bob' do
-  gid 'bob'
   action :create
 end
 
