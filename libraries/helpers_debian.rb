@@ -28,7 +28,7 @@ module MysqlCookbook
       end
 
       def mysql_w_network_stashed_pass
-        "/usr/bin/mysql -u root -h localhost -p#{Shellwords.escape(stashed_pass)}"
+        "/usr/bin/mysql -u root -h localhost -P #{new_resource.parsed_port} -p#{Shellwords.escape(stashed_pass)}"
       end
 
       def mysql_w_network_stashed_pass_working?
@@ -41,7 +41,7 @@ module MysqlCookbook
       end
 
       def mysql_w_network_resource_pass
-        "/usr/bin/mysql -u root -h localhost -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
+        "/usr/bin/mysql -u root -h localhost -P #{new_resource.parsed_port} -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
       end
 
       def mysql_w_network_resource_pass_working?
@@ -139,7 +139,6 @@ module MysqlCookbook
       def repair_server_root_password
         query = "UPDATE mysql.user SET Password=PASSWORD('#{new_resource.parsed_server_root_password}')"
         query << " WHERE User='root'; FLUSH PRIVILEGES;"
-        info = shell_out("echo \"#{query}\" | #{mysql_w_socket}", :env => nil)
         try_really_hard(query, 'mysql')
       end
 
@@ -171,6 +170,31 @@ module MysqlCookbook
         info = shell_out(cmd, :env => nil)
         info.exitstatus == 0 ? true : false
       end
+
+      def repair_remove_test_database
+        query = "DROP DATABASE IF EXISTS test;"
+        query << " DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';"
+        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}", :env => nil)
+        return true if info.stdout.empty?
+      end
+
+      def test_remove_test_database
+        query = "SHOW DATABASES LIKE 'test';"
+        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}", :env => nil)
+        return true if info.stdout.empty?
+      end
+
+      def repair_remove_anonymous_users
+        query = "DELETE FROM user WHERE User=''"
+        try_really_hard(query, 'mysql')
+      end
+
+      def test_remove_anonymous_users
+        query = "SELECT * FROM user WHERE User=''"
+        try_really_hard(query, 'mysql')
+      end
+      
     end
   end
 end
+

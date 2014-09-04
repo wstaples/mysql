@@ -175,19 +175,22 @@ class Chef
             supports :restart => true, :status => true
             action [:start]
           end
-          
+
+          # mysql database settings
           ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
             block { repair_mysql_password_charset }
             not_if { mysql_password_charset == 'utf8' }
             action :run
           end
 
+          # setup debian-sys-maint
           ruby_block "#{new_resource.parsed_name} :create repair_server_debian_password" do
             block { repair_server_debian_password }
             not_if { test_server_debian_password }
             action :run
           end
 
+          # set root password
           ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
             block { repair_server_root_password }
             not_if { test_server_root_password }
@@ -200,6 +203,22 @@ class Chef
             mode '0600'
             content new_resource.parsed_server_root_password
             action :nothing
+          end
+
+          # remove test database
+          ruby_block "#{new_resource.parsed_name} :create repair_remove_test_database" do
+            block { repair_remove_test_database }
+            not_if { test_remove_test_database }
+            only_if { new_resource.parsed_remove_test_database }
+            action :run
+          end
+
+          # remove anonymous_users
+          ruby_block "#{new_resource.parsed_name} :create repair_remove_anonymous_users" do
+            block { repair_remove_anonymous_users }
+            not_if { test_remove_anonymous_users }
+            only_if { new_resource.parsed_remove_anonymous_users }
+            action :run
           end
           
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do

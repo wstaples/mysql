@@ -187,8 +187,8 @@ suites:
        port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
-       remove_anonymous_users: false
-       remove_test_database: false
+       remove_anonymous_users: true
+       remove_test_database: true
        server_root_password: 'never gonna make you cry'
        server_debian_password: 'never gonna say goodbye'
        server_repl_password: 'never gonna tell a lie and hurt you'
