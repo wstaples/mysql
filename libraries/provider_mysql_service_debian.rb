@@ -177,11 +177,11 @@ class Chef
           end
 
           # database work
-          # puts 'WORKING mysql_w_network_resource_pass' if mysql_w_network_resource_pass_working?
-          # puts 'WORKING mysql_w_network_stashed_pass' if mysql_w_network_stashed_pass_working?
-          # puts 'WORKING mysql_w_socket_resource_pass' if mysql_w_socket_resource_pass_working?
-          # puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
-          # puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
+          puts 'WORKING mysql_w_network_resource_pass' if mysql_w_network_resource_pass_working?
+          puts 'WORKING mysql_w_network_stashed_pass' if mysql_w_network_stashed_pass_working?
+          puts 'WORKING mysql_w_socket_resource_pass' if mysql_w_socket_resource_pass_working?
+          puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
+          puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
           
           ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
             block { repair_mysql_password_charset }
@@ -199,8 +199,16 @@ class Chef
             block { repair_server_root_password }
             not_if { test_server_root_password }
             action :run
+            notifies :create, "file[#{new_resource.parsed_name} :create /etc/#{mysql_name}/.mysql_root]"
           end
 
+          file "#{new_resource.parsed_name} :create /etc/#{mysql_name}/.mysql_root" do
+            path "/etc/#{mysql_name}/.mysql_root"
+            mode '0600'
+            content new_resource.parsed_server_root_password
+            action :nothing
+          end
+          
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"
           #   cookbook 'mysql'
@@ -222,14 +230,7 @@ class Chef
           #   notifies :run, "execute[#{new_resource.parsed_name} :create root marker]"
           # end
 
-          # execute "#{new_resource.parsed_name} :create root marker" do
-          #   cmd = '/bin/echo'
-          #   cmd << " '#{Shellwords.escape(new_resource.parsed_server_root_password)}'"
-          #   cmd << " > /etc/#{mysql_name}/.mysql_root"
-          #   cmd << " ;/bin/chmod 0600 /etc/#{mysql_name}/.mysql_root"
-          #   command cmd
-          #   action :nothing
-          # end
+
         end
       end
 
