@@ -114,7 +114,7 @@ module MysqlCookbook
         return info.stdout.chomp if info.exitstatus == 0
         info = shell_out("echo \"#{query}\" | #{mysql_w_socket_stashed_pass} -D #{database} --skip-column-names")
         return info.stdout.chomp if info.exitstatus == 0
-        info = shell_out("echo \"#{query}\" | #{mysql_w_socket} -D #{database} --skip-column-names").exitstatus == 0
+        info = shell_out("echo \"#{query}\" | #{mysql_w_socket} -D #{database} --skip-column-names")
         return info.stdout.chomp if info.exitstatus == 0
         false
       end
@@ -168,6 +168,7 @@ module MysqlCookbook
         cmd << ' -u root'
         cmd << " -e 'show databases;'"
         cmd << " -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
+        puts "SEANDEBUG: #{cmd}"
         info = shell_out(cmd, :env => nil)
         info.exitstatus == 0 ? true : false
       end

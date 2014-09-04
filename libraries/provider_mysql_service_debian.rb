@@ -183,7 +183,6 @@ class Chef
           # puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
           # puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
           
-          # this depends on mysql_w_socket =(
           ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
             block { repair_mysql_password_charset }
             not_if { mysql_password_charset == 'utf8' }
