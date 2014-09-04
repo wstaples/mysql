@@ -177,35 +177,30 @@ class Chef
           end
 
           # database work
-          ruby_block 'testing the things' do
-            block do
-              puts 'WORKING mysql_w_network_resource_pass' if mysql_w_network_resource_pass_working?
-              puts 'WORKING mysql_w_network_stashed_pass' if mysql_w_network_stashed_pass_working?
-              puts 'WORKING mysql_w_socket_resource_pass' if mysql_w_socket_resource_pass_working?
-              puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
-              puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
-            end
+          # puts 'WORKING mysql_w_network_resource_pass' if mysql_w_network_resource_pass_working?
+          # puts 'WORKING mysql_w_network_stashed_pass' if mysql_w_network_stashed_pass_working?
+          # puts 'WORKING mysql_w_socket_resource_pass' if mysql_w_socket_resource_pass_working?
+          # puts 'WORKING mysql_w_socket_stashed_pass' if mysql_w_socket_stashed_pass_working?
+          # puts 'WORKING mysql_w_socket' if mysql_w_socket_working?
+          
+          # this depends on mysql_w_socket =(
+          ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
+            block { repair_mysql_password_charset }
+            not_if { mysql_password_charset == 'utf8' }
             action :run
           end
 
-          # this depends on mysql_w_socket =(
-          # ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
-          #   block { repair_mysql_password_charset }
-          #   not_if { mysql_password_charset == 'utf8' }
-          #   action :run
-          # end
+          ruby_block "#{new_resource.parsed_name} :create repair_server_debian_password" do
+            block { repair_server_debian_password }
+            not_if { test_server_debian_password }
+            action :run
+          end
 
-          # ruby_block "#{new_resource.parsed_name} :create repair_server_debian_password" do
-          #   block { repair_server_debian_password }
-          #   not_if { test_server_debian_password }
-          #   action :run
-          # end
-
-          # ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
-          #   block { repair_server_root_password }
-          #   not_if { test_server_root_password }
-          #   action :run
-          # end
+          ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
+            block { repair_server_root_password }
+            not_if { test_server_root_password }
+            action :run
+          end
 
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"
