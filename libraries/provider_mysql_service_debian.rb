@@ -220,7 +220,7 @@ class Chef
             only_if { new_resource.parsed_remove_anonymous_users }
             action :run
           end
-          
+
           # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
           #   path "/etc/#{mysql_name}/grants.sql"
           #   cookbook 'mysql'

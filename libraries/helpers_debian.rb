@@ -36,7 +36,7 @@ module MysqlCookbook
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_network_stashed_pass}"
         cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
+        info = shell_out!(cmd, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
 
@@ -49,7 +49,7 @@ module MysqlCookbook
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_network_resource_pass}"
         cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
+        info = shell_out!(cmd, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
 
@@ -62,7 +62,7 @@ module MysqlCookbook
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_socket_stashed_pass}"
         cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
+        info = shell_out!(cmd, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
 
@@ -75,7 +75,7 @@ module MysqlCookbook
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_socket_resource_pass}"
         cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
+        info = shell_out!(cmd, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
 
@@ -88,7 +88,7 @@ module MysqlCookbook
         cmd = "echo \"#{query}\""
         cmd << " | #{mysql_w_socket}"
         cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :env => nil, :returns => [0, 1])
+        info = shell_out!(cmd, :returns => [0, 1])
         info.exitstatus == 0 ? true : false
       end
 
@@ -157,7 +157,7 @@ module MysqlCookbook
 
       def test_server_debian_password
         query = 'show databases;'
-        info = shell_out("echo \"#{query}\" | #{debian_mysql_cmd}", :env => nil)
+        info = shell_out("echo \"#{query}\" | #{debian_mysql_cmd}")
         info.exitstatus == 0 ? true : false
       end
 
@@ -167,20 +167,20 @@ module MysqlCookbook
         cmd << ' -u root'
         cmd << " -e 'show databases;'"
         cmd << " -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
-        info = shell_out(cmd, :env => nil)
+        info = shell_out(cmd)
         info.exitstatus == 0 ? true : false
       end
 
       def repair_remove_test_database
-        query = "DROP DATABASE IF EXISTS test;"
+        query = 'DROP DATABASE IF EXISTS test;'
         query << " DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';"
-        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}", :env => nil)
+        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
         return true if info.stdout.empty?
       end
 
       def test_remove_test_database
         query = "SHOW DATABASES LIKE 'test';"
-        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}", :env => nil)
+        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
         return true if info.stdout.empty?
       end
 
@@ -193,8 +193,6 @@ module MysqlCookbook
         query = "SELECT * FROM user WHERE User=''"
         try_really_hard(query, 'mysql')
       end
-      
     end
   end
 end
-
