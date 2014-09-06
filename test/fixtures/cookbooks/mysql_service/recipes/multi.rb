@@ -50,7 +50,7 @@ mysql_service 'instance-2' do
   root_acl node['mysql']['root_acl']
   repl_password node['mysql']['repl_password']
   repl_acl node['mysql']['repl_acl']
-  debian_password node['mysql']['server_debian_password']
+  debian_password node['mysql']['debian_password']
   action :create
 end
 
