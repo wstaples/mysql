@@ -233,7 +233,6 @@ module MysqlCookbook
         query << " AND Host NOT IN ('#{new_resource.root_acl.join('\', \'')}');"
         try_really_hard(query, 'mysql')
       end
-      
     end
   end
 end

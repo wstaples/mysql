@@ -235,7 +235,7 @@ class Chef
             block { repair_repl_acl_extras }
             action :nothing
           end
-          
+
           # repair root ACL
           new_resource.root_acl.each do |acl|
             ruby_block "#{new_resource.parsed_name} :create root_acl #{acl}" do
@@ -249,7 +249,7 @@ class Chef
           ruby_block "#{new_resource.parsed_name} :create root_acl_extras" do
             block { repair_root_acl_extras }
             action :nothing
-          end          
+          end
         end
       end
 

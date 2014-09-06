@@ -189,8 +189,8 @@ suites:
        run_user: 'bob'
        remove_anonymous_users: true
        remove_test_database: true
-       root_acl: [ '%', 'mercury', 'venus', 'earth' ]
+       root_acl: [ '127.0.0.1', 'mercury', 'venus', 'earth' ]
        root_password: 'never gonna make you cry'
        repl_acl: [ '127.0.0.1', '::1', 'localhost', 'mars', 'jupiter', 'saturn', 'uranus' ]
-       repl_password: 'never gonna tell a lie and hurt you'
-       server_debian_password: 'never gonna say goodbye'
+       repl_password: 'never gonna say goodbye'
+       server_debian_password: 'never gonna tell a lie and hurt you'
