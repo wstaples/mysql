@@ -194,13 +194,9 @@ module MysqlCookbook
         try_really_hard(query, 'mysql')
       end
 
-      # FIXME: make dynamic
       def test_root_acl(acl)
         query = "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='#{acl}';"
         info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
-        # puts "SEANDEBUG :echo \"#{query}\" | #{mysql_w_network_resource_pass}:"
-        # puts "SEANDEBUG :#{info.exitstatus}:"
-        # puts "SEANDEBUG :#{info.stdout}:"
         return false unless info.exitstatus == 0
         return false if info.stdout.empty?
         true
@@ -215,9 +211,6 @@ module MysqlCookbook
       def test_repl_acl(acl)
         query = "SELECT Host,User,Password FROM mysql.user WHERE User='repl' AND Host='#{acl}';"
         info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
-        # puts "SEANDEBUG :echo \"#{query}\" | #{mysql_w_network_resource_pass}:"
-        # puts "SEANDEBUG :#{info.exitstatus}:"
-        # puts "SEANDEBUG :#{info.stdout}:"
         return false unless info.exitstatus == 0
         return false if info.stdout.empty?
         true
@@ -228,6 +221,19 @@ module MysqlCookbook
         query << " IDENTIFIED BY '#{new_resource.parsed_repl_password}';"
         try_really_hard(query, 'mysql')
       end
+
+      def repair_repl_acl_extras
+        query = "DELETE FROM mysql.user WHERE User='repl'"
+        query << " AND Host NOT IN ('#{new_resource.repl_acl.join('\', \'')}');"
+        try_really_hard(query, 'mysql')
+      end
+
+      def repair_root_acl_extras
+        query = "DELETE FROM mysql.user WHERE User='root'"
+        query << " AND Host NOT IN ('#{new_resource.root_acl.join('\', \'')}');"
+        try_really_hard(query, 'mysql')
+      end
+      
     end
   end
 end
