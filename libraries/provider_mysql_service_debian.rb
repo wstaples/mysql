@@ -107,7 +107,7 @@ class Chef
               :include_dir => include_dir
               )
             action :create
-            # notifies :restart, "service[#{new_resource.parsed_name} :create #{mysql_name}]"
+            notifies :restart, "service[#{new_resource.parsed_name} :create #{mysql_name}]"
           end
 
           # initialize mysql database
