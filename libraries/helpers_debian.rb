@@ -28,7 +28,7 @@ module MysqlCookbook
       end
 
       def mysql_w_network_stashed_pass
-        "/usr/bin/mysql -u root -h localhost -P #{new_resource.parsed_port} -p#{Shellwords.escape(stashed_pass)}"
+        "/usr/bin/mysql -u root -h 127.0.0.1 -P #{new_resource.parsed_port} -p#{Shellwords.escape(stashed_pass)}"
       end
 
       def mysql_w_network_stashed_pass_working?
@@ -41,7 +41,7 @@ module MysqlCookbook
       end
 
       def mysql_w_network_resource_pass
-        "/usr/bin/mysql -u root -h localhost -P #{new_resource.parsed_port} -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
+        "/usr/bin/mysql -u root -h 127.0.0.1 -P #{new_resource.parsed_port} -p#{Shellwords.escape(new_resource.parsed_root_password)}"
       end
 
       def mysql_w_network_resource_pass_working?
@@ -67,7 +67,7 @@ module MysqlCookbook
       end
 
       def mysql_w_socket_resource_pass
-        "/usr/bin/mysql -S #{socket_file} -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
+        "/usr/bin/mysql -S #{socket_file} -p#{Shellwords.escape(new_resource.parsed_root_password)}"
       end
 
       def mysql_w_socket_resource_pass_working?
@@ -124,20 +124,20 @@ module MysqlCookbook
         try_really_hard(query, 'mysql')
       end
 
-      def repair_server_debian_password
+      def repair_debian_password
         query = 'GRANT SELECT, INSERT, UPDATE, DELETE,'
         query << ' CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,'
         query << ' FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES,'
         query << ' SUPER, CREATE TEMPORARY TABLES, LOCK TABLES,'
         query << ' EXECUTE, REPLICATION SLAVE,'
         query << " REPLICATION CLIENT ON *.* TO 'debian-sys-maint'@'localhost'"
-        query << " IDENTIFIED BY '#{new_resource.parsed_server_debian_password}'"
+        query << " IDENTIFIED BY '#{new_resource.parsed_debian_password}'"
         query << ' WITH GRANT OPTION;'
         try_really_hard(query, 'mysql')
       end
 
-      def repair_server_root_password
-        query = "UPDATE mysql.user SET Password=PASSWORD('#{new_resource.parsed_server_root_password}')"
+      def repair_root_password
+        query = "UPDATE mysql.user SET Password=PASSWORD('#{new_resource.parsed_root_password}')"
         query << " WHERE User='root'; FLUSH PRIVILEGES;"
         try_really_hard(query, 'mysql')
       end
@@ -155,18 +155,18 @@ module MysqlCookbook
         ''
       end
 
-      def test_server_debian_password
+      def test_debian_password
         query = 'show databases;'
         info = shell_out("echo \"#{query}\" | #{debian_mysql_cmd}")
         info.exitstatus == 0 ? true : false
       end
 
-      def test_server_root_password
+      def test_root_password
         cmd = '/usr/bin/mysql'
         cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
         cmd << ' -u root'
         cmd << " -e 'show databases;'"
-        cmd << " -p#{Shellwords.escape(new_resource.parsed_server_root_password)}"
+        cmd << " -p#{Shellwords.escape(new_resource.parsed_root_password)}"
         info = shell_out(cmd)
         info.exitstatus == 0 ? true : false
       end
@@ -191,6 +191,41 @@ module MysqlCookbook
 
       def test_remove_anonymous_users
         query = "SELECT * FROM user WHERE User=''"
+        try_really_hard(query, 'mysql')
+      end
+
+      # FIXME: make dynamic
+      def test_root_acl(acl)
+        query = "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='#{acl}';"
+        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
+        # puts "SEANDEBUG :echo \"#{query}\" | #{mysql_w_network_resource_pass}:"
+        # puts "SEANDEBUG :#{info.exitstatus}:"
+        # puts "SEANDEBUG :#{info.stdout}:"
+        return false unless info.exitstatus == 0
+        return false if info.stdout.empty?
+        true
+      end
+
+      def repair_root_acl(acl)
+        query = " GRANT ALL PRIVILEGES ON *.* TO 'root'@'#{acl}'"
+        query << " IDENTIFIED BY '#{new_resource.parsed_root_password}' WITH GRANT OPTION;"
+        try_really_hard(query, 'mysql')
+      end
+
+      def test_repl_acl(acl)
+        query = "SELECT Host,User,Password FROM mysql.user WHERE User='repl' AND Host='#{acl}';"
+        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
+        # puts "SEANDEBUG :echo \"#{query}\" | #{mysql_w_network_resource_pass}:"
+        # puts "SEANDEBUG :#{info.exitstatus}:"
+        # puts "SEANDEBUG :#{info.stdout}:"
+        return false unless info.exitstatus == 0
+        return false if info.stdout.empty?
+        true
+      end
+
+      def repair_repl_acl(acl)
+        query = " GRANT REPLICATION SLAVE ON *.* TO 'repl'@'#{acl}' "
+        query << " IDENTIFIED BY '#{new_resource.parsed_repl_password}';"
         try_really_hard(query, 'mysql')
       end
     end

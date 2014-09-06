@@ -8,22 +8,22 @@ class Chef
       actions :create, :restart, :reload
       default_action :create
 
-      attribute :allow_remote_root, :kind_of => [TrueClass, FalseClass], :default => false
       attribute :data_dir, :kind_of => String, :default => nil
+      attribute :debian_password, :kind_of => String, :default => 'gnuslashlinux4ev4r'
       attribute :instance, :kind_of => String, :name_attribute => true
+      attribute :package_action, :kind_of => String, :default => nil
       attribute :package_name, :kind_of => String, :default => nil
+      attribute :package_version, :kind_of => String, :default => nil
       attribute :port, :kind_of => String, :default => '3306'
       attribute :remove_anonymous_users, :kind_of => [TrueClass, FalseClass], :default => true
       attribute :remove_test_database, :kind_of => [TrueClass, FalseClass], :default => true
-      attribute :root_network_acl, :kind_of => Array, :default => []
-      attribute :run_user, :kind_of => String, :default => 'mysql'
+      attribute :repl_acl, :kind_of => Array, :default => []
+      attribute :repl_password, :kind_of => String, :default => nil
+      attribute :root_acl, :kind_of => Array, :default => ['127.0.0.1', '::1', 'localhost']
+      attribute :root_password, :kind_of => String, :default => 'ilikerandompasswords'
       attribute :run_group, :kind_of => String, :default => 'mysql'
-      attribute :server_debian_password, :kind_of => String, :default => 'gnuslashlinux4ev4r'
-      attribute :server_repl_password, :kind_of => String, :default => nil
-      attribute :server_root_password, :kind_of => String, :default => 'ilikerandompasswords'
+      attribute :run_user, :kind_of => String, :default => 'mysql'
       attribute :version, :kind_of => String, :default => nil
-      attribute :package_version, :kind_of => String, :default => nil
-      attribute :package_action, :kind_of => String, :default => nil
     end
 
     include Opscode::Mysql::Helpers
@@ -95,16 +95,24 @@ class Chef
       return run_group if run_group
     end
 
-    def parsed_server_debian_password
-      return server_debian_password if server_debian_password
+    def parsed_debian_password
+      return debian_password if debian_password
     end
 
-    def parsed_server_repl_password
-      return server_repl_password if server_repl_password
+    def parsed_repl_acl
+      return repl_acl if repl_acl
     end
 
-    def parsed_server_root_password
-      return server_root_password if server_root_password
+    def parsed_repl_password
+      return repl_password if repl_password
+    end
+
+    def parsed_root_acl
+      return root_acl if root_acl
+    end
+
+    def parsed_root_password
+      return root_password if root_password
     end
 
     def parsed_version

@@ -184,16 +184,16 @@ class Chef
           end
 
           # setup debian-sys-maint
-          ruby_block "#{new_resource.parsed_name} :create repair_server_debian_password" do
-            block { repair_server_debian_password }
-            not_if { test_server_debian_password }
+          ruby_block "#{new_resource.parsed_name} :create repair_debian_password" do
+            block { repair_debian_password }
+            not_if { test_debian_password }
             action :run
           end
 
           # set root password
-          ruby_block "#{new_resource.parsed_name} :create repair_server_root_password" do
-            block { repair_server_root_password }
-            not_if { test_server_root_password }
+          ruby_block "#{new_resource.parsed_name} :create repair_root_password" do
+            block { repair_root_password }
+            not_if { test_root_password }
             action :run
             notifies :create, "file[#{new_resource.parsed_name} :create /etc/#{mysql_name}/.mysql_root]"
           end
@@ -201,7 +201,7 @@ class Chef
           file "#{new_resource.parsed_name} :create /etc/#{mysql_name}/.mysql_root" do
             path "/etc/#{mysql_name}/.mysql_root"
             mode '0600'
-            content new_resource.parsed_server_root_password
+            content new_resource.parsed_root_password
             action :nothing
           end
 
@@ -221,26 +221,23 @@ class Chef
             action :run
           end
 
-          # template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/grants.sql" do
-          #   path "/etc/#{mysql_name}/grants.sql"
-          #   cookbook 'mysql'
-          #   source 'grants/grants.sql.erb'
-          #   owner 'root'
-          #   group 'root'
-          #   mode '0600'
-          #   variables(:config => new_resource)
-          #   action :create
-          #   notifies :run, "execute[#{new_resource.parsed_name} :create install-grants]"
-          # end
+          # repair repl ACL
+          new_resource.repl_acl.each do |acl|
+            ruby_block "#{new_resource.parsed_name} :create repl_acl #{acl}" do
+              block { repair_repl_acl acl }
+              not_if { test_repl_acl acl }
+              action :run
+            end
+          end
 
-          # execute "#{new_resource.parsed_name} :create install-grants" do
-          #   cmd = '/usr/bin/mysql'
-          #   cmd << ' -u root '
-          #   cmd << "#{pass_string} < /etc/#{mysql_name}/grants.sql"
-          #   command cmd
-          #   action :nothing
-          #   notifies :run, "execute[#{new_resource.parsed_name} :create root marker]"
-          # end
+          # repair root ACL
+          new_resource.root_acl.each do |acl|
+            ruby_block "#{new_resource.parsed_name} :create root_acl #{acl}" do
+              block { repair_root_acl acl }
+              not_if { test_root_acl acl }
+              action :run
+            end
+          end
         end
       end
 

@@ -28,14 +28,13 @@ mysql_service 'instance-1' do
   port '3307'
   data_dir '/data/instance-1'
   run_user 'alice'
-  allow_remote_root true
   remove_anonymous_users true
   remove_test_database true
-  root_network_acl ['0.0.0.0']
-  server_root_password 'never gonna give you up'
-  # server_root_password 'we got the funk'
-  server_debian_password 'never gonna let you down'
-  server_repl_password 'never gonna run around and desert you'
+  root_acl ['%']
+  root_password 'never gonna give you up'
+  repl_acl nil
+  repl_password 'never gonna let you down'
+  debian_password 'never gonna run around and desert you'
   action :create
 end
 
@@ -45,13 +44,13 @@ mysql_service 'instance-2' do
   port node['mysql']['port']
   data_dir node['mysql']['data_dir']
   run_user node['mysql']['run_user']
-  allow_remote_root node['mysql']['allow_remote_root']
   remove_anonymous_users node['mysql']['remove_anonymous_users']
   remove_test_database node['mysql']['remove_test_database']
-  root_network_acl node['mysql']['root_network_acl']
-  server_root_password node['mysql']['server_root_password']
-  server_debian_password node['mysql']['server_debian_password']
-  server_repl_password node['mysql']['server_repl_password']
+  root_password node['mysql']['root_password']
+  root_acl node['mysql']['root_acl']
+  repl_password node['mysql']['repl_password']
+  repl_acl node['mysql']['repl_acl']
+  debian_password node['mysql']['server_debian_password']
   action :create
 end
 

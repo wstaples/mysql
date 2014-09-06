@@ -1,12 +1,12 @@
 [client]
 host     = localhost
 user     = debian-sys-maint
-password = "<%= @config.server_debian_password %>"
+password = "<%= @config.parsed_debian_password %>"
 socket   = <%= @socket_file %>
 
 [mysql_upgrade]
 host     = localhost
 user     = debian-sys-maint
-password = "<%= @config.server_debian_password %>"
+password = "<%= @config.parsed_debian_password %>"
 socket   = <%= @socket_file %>
 basedir  = /usr
