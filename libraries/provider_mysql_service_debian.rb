@@ -126,7 +126,8 @@ class Chef
           end
 
           # service
-          template "/etc/#{mysql_name}/debian.cnf" do
+          template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/debian.cnf" do
+            path "/etc/#{mysql_name}/debian.cnf"
             cookbook 'mysql'
             source 'debian/debian.cnf.erb'
             owner 'root'
