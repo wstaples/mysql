@@ -10,16 +10,14 @@ class Chef
 
       attribute :config_name, :kind_of => String, :name_attribute => true, :required => true
       attribute :cookbook, :kind_of => String, :default => nil
-      attribute :mysql_version, :kind_of => String, :default => nil
+      attribute :group, :kind_of => String, :default => 'mysql'
       attribute :instance, :kind_of => String, :default => 'default'
+      attribute :mysql_version, :kind_of => String, :default => nil
+      attribute :owner, :kind_of => String, :default => 'mysql'
       attribute :source, :kind_of => String, :default => nil
       attribute :variables, :kind_of => [Hash], :default => nil
 
       include MysqlCookbook::Helpers::Debian
-
-      def parsed_name
-        return name if name
-      end
 
       def parsed_config_name
         return config_name if config_name
@@ -29,12 +27,24 @@ class Chef
         return cookbook if cookbook
       end
 
-      def parsed_mysql_version
-        # FIXME
+      def parsed_group
+        return group if group
       end
 
       def parsed_instance
         return instance if instance
+      end
+
+      def parsed_mysql_version
+        # FIXME
+      end
+
+      def parsed_name
+        return name if name
+      end
+
+      def parsed_owner
+        return owner if owner
       end
 
       def parsed_source

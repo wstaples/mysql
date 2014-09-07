@@ -14,20 +14,31 @@ class Chef
         end
 
         action :create do
+          group "#{new_resource.parsed_name} :create #{new_resource.parsed_group}" do
+            group_name new_resource.parsed_group
+            action :create
+          end
+
+          user "#{new_resource.parsed_name} :create #{new_resource.parsed_owner}" do
+            username new_resource.parsed_owner
+            gid new_resource.parsed_owner
+            action :create
+          end
+
           directory "#{new_resource.parsed_name} create /etc/#{mysql_name}/conf.d" do
             path "/etc/#{mysql_name}/conf.d"
-            owner 'root'
-            group 'root'
-            mode '0755'
+            owner new_resource.parsed_owner
+            group new_resource.parsed_group
+            mode '0750'
             recursive true
             action :create
           end
 
           template "#{new_resource.parsed_name} create /etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.conf" do
             path "/etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.conf"
-            owner 'root'
-            group 'root'
-            mode '0644'
+            owner new_resource.parsed_owner
+            group new_resource.parsed_group
+            mode '0640'
             variables(new_resource.parsed_variables)
             source new_resource.parsed_source
             cookbook new_resource.parsed_cookbook

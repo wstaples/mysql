@@ -36,11 +36,11 @@ class Chef
       return data_dir if data_dir
       case node['platform_family']
       when 'rhel', 'fedora', 'suse', 'debian', 'omnios'
-        data_dir = "/var/lib/#{mysql_name}"
+        data_dir = "/var/lib/mysql-#{instance}"
       when 'smartos'
-        data_dir = "/opt/local/lib/#{mysql_name}"
+        data_dir = "/opt/local/lib/mysql-#{instance}"
       when 'freebsd'
-        data_dir = "/var/db/#{mysql_name}"
+        data_dir = "/var/db/mysql-#{instance}"
       end
       data_dir
     end

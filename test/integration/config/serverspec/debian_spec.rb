@@ -5,7 +5,6 @@ include Serverspec::Helper::DetectOS
 
 property[:os] = backend.check_os
 platform = property[:os][:family]
-platform_version = property[:os][:release]
 
 if platform =~ /Debian/ || platform =~ /Ubuntu/
   describe file('/etc/mysql-default') do
