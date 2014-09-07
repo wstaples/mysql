@@ -14,7 +14,6 @@ class Chef
         end
 
         action :create do
-          puts "SEANDEBUG: wat"
           directory "#{new_resource.parsed_name} create /etc/#{mysql_name}/conf.d" do
             path "/etc/#{mysql_name}/conf.d"
             owner 'root'

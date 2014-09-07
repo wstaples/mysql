@@ -28,3 +28,7 @@ Chef::Platform.set :platform => :scientific, :resource => :mysql_service, :provi
 Chef::Platform.set :platform => :smartos, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Smartos
 Chef::Platform.set :platform => :suse, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Suse
 Chef::Platform.set :platform => :ubuntu, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Ubuntu
+
+# config
+Chef::Platform.set :platform => :debian, :resource => :mysql_config, :provider => Chef::Provider::MysqlConfig::Debian
+
