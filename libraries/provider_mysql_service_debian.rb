@@ -257,7 +257,7 @@ class Chef
       action :restart do
         service 'mysql' do
           service_name mysql_name
-          provider Chef::Provider::Service::Init::Debian
+          provider Chef::Provider::Service::Init
           supports :restart => true
           action :restart
         end
@@ -266,7 +266,7 @@ class Chef
       action :reload do
         service 'mysql' do
           service_name mysql_name
-          provider Chef::Provider::Service::Init::Debian
+          provider Chef::Provider::Service::Init
           action :reload
         end
       end

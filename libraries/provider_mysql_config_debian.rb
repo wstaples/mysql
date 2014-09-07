@@ -34,8 +34,8 @@ class Chef
             action :create
           end
 
-          template "#{new_resource.parsed_name} create /etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.conf" do
-            path "/etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.conf"
+          template "#{new_resource.parsed_name} create /etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.cnf" do
+            path "/etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.cnf"
             owner new_resource.parsed_owner
             group new_resource.parsed_group
             mode '0640'
