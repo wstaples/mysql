@@ -261,23 +261,23 @@ class Chef
             action :nothing
           end
         end
-      end
-
-      action :restart do
-        service "#{new_resource.parsed_name} :restart #{mysql_name}" do
-          service_name mysql_name
-          provider Chef::Provider::Service::Init
-          supports :restart => true
-          action :restart
+        
+        action :restart do
+          service "#{new_resource.parsed_name} :restart #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true
+            action :restart
+          end
         end
-      end
-
-      action :reload do
-        service "#{new_resource.parsed_name} :restart #{mysql_name}" do
-          service_name mysql_name
-          provider Chef::Provider::Service::Init
-          action :reload
-        end
+        
+        action :reload do
+          service "#{new_resource.parsed_name} :restart #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            action :reload
+          end
+        end        
       end
     end
   end
