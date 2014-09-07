@@ -5,6 +5,7 @@ mysql_service 'master' do
   repl_acl ['127.0.0.1']
   repl_password 'never gonna let you down'
   action :create
+  provider Chef::Provider::MysqlService::Debian
 end
 
 # FIXME: notify broken?

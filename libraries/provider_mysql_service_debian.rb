@@ -90,6 +90,15 @@ class Chef
             action :create
           end
 
+          directory "#{new_resource.parsed_name} :create /var/log/#{mysql_name}" do
+            path "/var/log/#{mysql-name}"
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0750'
+            recursive true
+            action :create
+          end
+
           # FIXME: pass new_resource as config
           template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/my.cnf" do
             path "/etc/#{mysql_name}/my.cnf"
@@ -255,7 +264,7 @@ class Chef
       end
 
       action :restart do
-        service 'mysql' do
+        service "#{new_resource.parsed_name} :restart #{mysql_name}" do
           service_name mysql_name
           provider Chef::Provider::Service::Init
           supports :restart => true
@@ -264,7 +273,7 @@ class Chef
       end
 
       action :reload do
-        service 'mysql' do
+        service "#{new_resource.parsed_name} :restart #{mysql_name}" do
           service_name mysql_name
           provider Chef::Provider::Service::Init
           action :reload
