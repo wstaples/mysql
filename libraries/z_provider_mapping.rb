@@ -8,4 +8,3 @@ Chef::Platform.set :platform => :debian, :resource => :mysql_service, :provider 
 
 # config
 Chef::Platform.set :platform => :debian, :resource => :mysql_config, :provider => Chef::Provider::MysqlConfig::Debian
-
