@@ -144,17 +144,17 @@ platforms:
 #     sudo: false
 #     chef_omnibus_url: https://raw.github.com/test-kitchen/kitchen-joyent/master/scripts/install-smartos.sh
 
-- name: omnios-151006
-  driver_plugin: ec2
-  driver_config:
-    image_id: ami-35eb835c
-    flavor_id: m3.medium
-    username: root
-    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-  provisioner:
-    name: chef_zero
-  run_list:
-  - recipe[ips-omniti]
+# - name: omnios-151006
+#   driver_plugin: ec2
+#   driver_config:
+#     image_id: ami-35eb835c
+#     flavor_id: m3.medium
+#     username: root
+#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+#   provisioner:
+#     name: chef_zero
+#   run_list:
+#   - recipe[ips-omniti]
 
 suites:
   #
@@ -201,3 +201,10 @@ suites:
   - name: config
     run_list:
     - recipe[mysql_config]
+
+  #
+  # replication-test
+  #
+  - name: replication-test
+    run_list:
+    - recipe[mysql_replication_test]
