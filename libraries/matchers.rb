@@ -14,4 +14,12 @@ if defined?(ChefSpec)
   def enable_mysql_service(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:mysql_service, :enable, resource_name)
   end
+
+  def create_mysql_config(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:mysql_config, :create, resource_name)
+  end
+
+  def enable_mysql_config(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:mysql_config, :enable, resource_name)
+  end
 end

@@ -194,3 +194,10 @@ suites:
        repl_acl: [ '127.0.0.1', '::1', 'localhost', 'mars', 'jupiter', 'saturn', 'uranus' ]
        repl_password: 'never gonna say goodbye'
        server_debian_password: 'never gonna tell a lie and hurt you'
+
+  #
+  # config
+  #
+  - name: config
+    run_list:
+    - recipe[mysql_config]

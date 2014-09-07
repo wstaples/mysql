@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'mysql_service::multi on debian-7.2' do
   let(:mysql_service_multi_55_debian_7_2_stepinto) do
     ChefSpec::Runner.new(
-      :step_into => 'mysql_service',
+      # :step_into => 'mysql_service',
       :platform => 'debian',
       :version => '7.2') do |node|
       node.set['mysql']['version'] = '5.5'

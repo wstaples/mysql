@@ -10,3 +10,4 @@ group :integration do
 end
 
 cookbook 'mysql_service', path: 'test/fixtures/cookbooks/mysql_service'
+cookbook 'mysql_config', path: 'test/fixtures/cookbooks/mysql_config'
