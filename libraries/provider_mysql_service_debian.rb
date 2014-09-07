@@ -91,7 +91,7 @@ class Chef
           end
 
           directory "#{new_resource.parsed_name} :create /var/log/#{mysql_name}" do
-            path "/var/log/#{mysql-name}"
+            path "/var/log/#{mysql_name}"
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
             mode '0750'
