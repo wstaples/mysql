@@ -186,12 +186,12 @@ class Chef
             action [:start]
           end
 
-          # mysql database settings
-          ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
-            block { repair_mysql_password_charset }
-            not_if { mysql_password_charset == 'utf8' }
-            action :run
-          end
+          # # mysql database settings
+          # ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
+          #   block { repair_mysql_password_charset }
+          #   not_if { mysql_password_charset == 'utf8' }
+          #   action :run
+          # end
 
           # setup debian-sys-maint
           ruby_block "#{new_resource.parsed_name} :create repair_debian_password" do

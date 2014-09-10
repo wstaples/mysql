@@ -1,7 +1,0 @@
-[mysqld]
-server-id = <%= @server_id %>
-binlog_do_db = /var/log/mysql-<%= @mysql_instance %>/mysql-bin.log
-log_error = /var/log/mysql-<%= mysql_instance %>/error.log
-log_bin = /var/log/mysql-<%= @mysql_instance %>/mysql-bin.log
-expire_logs_days = 10
-max_binlog_size = 100M
