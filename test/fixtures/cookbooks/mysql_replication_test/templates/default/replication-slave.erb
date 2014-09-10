@@ -1,11 +1,4 @@
 [mysqld]
-binlog-format = mixed
-expire_logs_days = 10
-innodb_flush_log_at_trx_commit = 1
-log-slave-updates = 1
-log_bin = /var/log/mysql-<%= @mysql_instance %>/mysql-bin.log
 log_error = /var/log/mysql-<%= @mysql_instance %>/error.log
-max_binlog_size = 100M
-read-only = 1
 relay-log = /var/log/mysql-<%= @mysql_instance %>/mysql-relay-bin.log
 server-id = <%= @server_id %>

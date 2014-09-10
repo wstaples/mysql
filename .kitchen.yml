@@ -33,109 +33,54 @@ platforms:
       - recipe[apt]
  
 suites:
-  - name: client
+  #
+  # service55-single
+  #
+  - name: service55-single
     run_list:
-      - recipe[mysql_client_test]
-
-  - name: server50-default
-    run_list:
-      - recipe[mysql_test_custom::server]
-    includes: [ 'centos-5.10' ]
-    attributes:
-      mysql:
-        version: '5.0' 
-
-  - name: server50-custom
-    run_list:
-      - recipe[mysql_test_custom::server]
-    includes: [ 'centos-5.10' ]
-    attributes:
-      mysql:
-        version: '5.0' 
-        port: '3308'
-        data_dir: '/data'
-
-  - name: server51-default
-    run_list:
-    - recipe[mysql_test_custom::server]
+    - recipe[mysql_service::single]
     includes: [
-      'centos-5.10',
-      'centos-6.5',
-      'ubuntu-10.04'
-    ]
-    attributes:
-      mysql:
-        version: '5.1'
-
-  - name: server51-custom
-    run_list:
-    - recipe[mysql_test_custom::server]
-    includes: [
-      'centos-5.10',
-      'centos-6.5',
-      'ubuntu-10.04'
-    ]
-    attributes:
-      mysql:
-        version: '5.1'
-        port: '3308'
-        data_dir: '/data'
-
-  - name: server55-default
-    run_list:
-    - recipe[mysql_test_custom::server]
-    includes: [
-      'fedora-19',
-      'freebsd-9.2',
-      'freebsd-10.0',
-      'debian-7.4',
-      'ubuntu-12.04',
-      'ubuntu-13.04',
-      'ubuntu-14.04',
-      'omnios-r151006j-r1'
+      'debian-7.0',
+      'omnios-151006'
     ]
     attributes:
       mysql:
        version: '5.5'
 
-  - name: server55-custom
+  #
+  # service55-multi
+  #
+  - name: service55-multi
     run_list:
-    - recipe[mysql_test_custom::server]
+    - recipe[mysql_service::multi]
     includes: [
-      'fedora-19',
-      'freebsd-9.2',
-      'freebsd-10.0',
-      'debian-7.4',
-      'ubuntu-12.04',
-      'ubuntu-13.04',
-      'omnios-r151006j-r1'
+      'debian-7.0',
+      'omnios-151006'
     ]
     attributes:
       mysql:
        version: '5.5'
        port: '3308'
-       data_dir: '/data'
+       data_dir: '/data/instance-2'
+       run_user: 'bob'
+       remove_anonymous_users: true
+       remove_test_database: true
+       root_acl: [ '127.0.0.1', 'mercury', 'venus', 'earth' ]
+       root_password: 'never gonna make you cry'
+       repl_acl: [ '127.0.0.1', '::1', 'localhost', 'mars', 'jupiter', 'saturn', 'uranus' ]
+       repl_password: 'never gonna say goodbye'
+       server_debian_password: 'never gonna tell a lie and hurt you'
 
-  - name: server56-default
+  #
+  # config
+  #
+  - name: config
     run_list:
-    - recipe[mysql_test_custom::server]
-    includes: [
-      'ubuntu-14.04',
-      'omnios-r151006j-r1'
-    ]
-    attributes:
-      mysql:
-        version: '5.6'
+    - recipe[mysql_config]
 
-  - name: server56-custom
+  #
+  # replication-test
+  #
+  - name: replication-test
     run_list:
-    - recipe[mysql_test_custom::server]
-    includes: [
-      'ubuntu-14.04',
-      'omnios-r151006j-r1'
-    ]
-    attributes:
-      mysql:
-        version: '5.6'
-        port: '3308'
-        data_dir: '/data'
+    - recipe[mysql_replication_test]
