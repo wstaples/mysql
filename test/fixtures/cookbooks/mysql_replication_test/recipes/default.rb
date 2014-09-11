@@ -7,6 +7,7 @@ mysql_config 'master replication' do
   source 'replication-master.erb'
   variables(:server_id => '1', :mysql_instance => 'master')
   notifies :restart, 'mysql_service[master]'
+  notifies :run, 'bash[populate databass]', :delayed
   action :create
 end
 
@@ -66,12 +67,12 @@ end
 execute 'slave-1 import' do
   user 'root'
   command '/usr/bin/mysql -u root -h 127.0.0.1 -P 3307 -pilikerandompasswords < /root/dump.sql'
-  action :run
+  action :nothing
 end
 
 ruby_block 'start_slave_1' do
   block { start_slave_1 }
-  action :run
+  action :nothing
 end
 
 # slave-2
@@ -98,5 +99,15 @@ end
 
 ruby_block 'start_slave_2' do
   block { start_slave_2 }
+  action :nothing
+end
+
+# Put some data in the master
+bash 'populate databass' do
+  code <<-EOF
+  echo "CREATE DATABASE databass;" | /usr/bin/mysql -u root -h 127.0.0.1 -P 3306 -pilikerandompasswords
+  echo "CREATE TABLE databass.table1 (name VARCHAR(20), rank VARCHAR(20));" | /usr/bin/mysql -u root -h 127.0.0.1 -P 3306 -pilikerandompasswords
+  echo "INSERT INTO databass.table1 (name,rank) VALUES('captain','awesome');" | /usr/bin/mysql -u root -h 127.0.0.1 -P 3306 -pilikerandompasswords
+  EOF
   action :nothing
 end
