@@ -31,7 +31,6 @@ bash 'create /root/dump.sql' do
     > /root/dump.sql;
    EOF
   creates '/root/dump.sql'
-  notifies :run, 'bash[stash position in /root/position]'
   action :nothing
 end
 
