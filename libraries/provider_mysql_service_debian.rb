@@ -54,15 +54,6 @@ class Chef
           end
 
           # support directories
-          directory "#{new_resource.parsed_name} :create #{run_dir}" do
-            path run_dir
-            owner new_resource.parsed_run_user
-            group new_resource.parsed_run_group
-            mode '0755'
-            action :create
-            recursive true
-          end
-
           directory "#{new_resource.parsed_name} :create /etc/#{mysql_name}" do
             path "/etc/#{mysql_name}"
             owner new_resource.parsed_run_user
@@ -79,6 +70,15 @@ class Chef
             mode '0750'
             recursive true
             action :create
+          end
+
+          directory "#{new_resource.parsed_name} :create #{run_dir}" do
+            path run_dir
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0755'
+            action :create
+            recursive true
           end
 
           directory "#{new_resource.parsed_name} :create #{new_resource.parsed_data_dir}" do
@@ -262,6 +262,47 @@ class Chef
           end
         end
 
+        action :delete do
+          template "#{new_resource.parsed_name} :create /etc/init.d/#{mysql_name}" do
+            path "/etc/init.d/#{mysql_name}"
+            source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
+            owner 'root'
+            group 'root'
+            mode '0755'
+            variables(
+              :mysql_name => mysql_name,
+              :data_dir => new_resource.parsed_data_dir
+              )
+            cookbook 'mysql'
+            action :create
+          end
+
+          service "#{new_resource.parsed_name} :delete #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true, :status => true
+            action [:stop]
+          end
+
+          directory "#{new_resource.parsed_name} :delete /etc/#{mysql_name}" do
+            path "/etc/#{mysql_name}"
+            recursive true
+            action :delete
+          end
+
+          directory "#{new_resource.parsed_name} :delete #{run_dir}" do
+            path run_dir
+            recursive true
+            action :delete
+          end
+
+          directory "#{new_resource.parsed_name} :delete /var/log/#{mysql_name}" do
+            path "/var/log/#{mysql_name}"
+            recursive true
+            action :delete
+          end
+        end
+
         action :restart do
           service "#{new_resource.parsed_name} :restart #{mysql_name}" do
             service_name mysql_name
@@ -272,7 +313,7 @@ class Chef
         end
 
         action :reload do
-          service "#{new_resource.parsed_name} :restart #{mysql_name}" do
+          service "#{new_resource.parsed_name} :reload #{mysql_name}" do
             service_name mysql_name
             provider Chef::Provider::Service::Init
             action :reload

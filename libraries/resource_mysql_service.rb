@@ -5,7 +5,7 @@ class Chef
   class Resource
     class MysqlService < Chef::Resource::LWRPBase
       self.resource_name = :mysql_service
-      actions :create, :restart, :reload
+      actions :create, :delete, :restart, :reload
       default_action :create
 
       attribute :data_dir, :kind_of => String, :default => nil

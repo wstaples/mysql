@@ -18,9 +18,9 @@ user 'bob' do
   action :create
 end
 
-# mysql_service 'default' do
-#   action :delete
-# end
+mysql_service 'default' do
+  action :delete
+end
 
 # hard code values where we can
 mysql_service 'instance-1' do
