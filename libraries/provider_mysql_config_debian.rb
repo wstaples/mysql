@@ -25,7 +25,7 @@ class Chef
             action :create
           end
 
-          directory "#{new_resource.parsed_name} create /etc/#{mysql_name}/conf.d" do
+          directory "#{new_resource.parsed_name} :create /etc/#{mysql_name}/conf.d" do
             path "/etc/#{mysql_name}/conf.d"
             owner new_resource.parsed_owner
             group new_resource.parsed_group
@@ -34,7 +34,7 @@ class Chef
             action :create
           end
 
-          template "#{new_resource.parsed_name} create /etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.cnf" do
+          template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.cnf" do
             path "/etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.cnf"
             owner new_resource.parsed_owner
             group new_resource.parsed_group
@@ -47,7 +47,7 @@ class Chef
         end
 
         action :delete do
-          file "#{new_resource.parsed_name} create /etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.conf" do
+          file "#{new_resource.parsed_name} :create /etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.conf" do
             path "/etc/#{mysql_name}/conf.d/#{new_resource.parsed_config_name}.conf"
             action :delete
           end
