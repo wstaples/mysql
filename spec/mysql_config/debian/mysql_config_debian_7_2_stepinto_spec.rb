@@ -55,7 +55,7 @@ describe 'mysql_config::default on debian-7.2' do
         :path => '/etc/mysql-default/conf.d/hello.cnf',
         :owner => 'mysql',
         :group => 'mysql',
-        :mode => '0640',
+        :mode => '0640'
         )
     end
 
@@ -94,7 +94,7 @@ describe 'mysql_config::default on debian-7.2' do
         :path => '/etc/mysql-foo/conf.d/hello_again.cnf',
         :owner => 'mysql',
         :group => 'mysql',
-        :mode => '0640',
+        :mode => '0640'
         )
     end
   end
