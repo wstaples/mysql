@@ -41,6 +41,15 @@ class Chef
             recursive true
           end
 
+          directory "#{new_resource.parsed_name} :create /var/adm/log/#{mysql_name}" do
+            path "/var/adm/log/#{mysql_name}"
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0755'
+            action :create
+            recursive true
+          end
+
           # data_dir
           directory "#{new_resource.parsed_name} :create #{new_resource.parsed_data_dir}" do
             path new_resource.parsed_data_dir
@@ -94,31 +103,21 @@ class Chef
             group 'root'
             mode '0555'
             variables(
-              :base_dir => base_dir,
               :data_dir => new_resource.parsed_data_dir,
+              :run_user => new_resource.parsed_run_user,
+              :base_dir => base_dir,
               :pid_file => pid_file,
-              :my_cnf => my_cnf
-              )
-            action :create
-          end
-
-          template "#{new_resource.parsed_name} :create /tmp/mysql.xml" do
-            path "/tmp/#{mysql_name}.xml"
-            cookbook 'mysql'
-            source 'omnios/mysql.xml.erb'
-            owner 'root'
-            mode '0644'
-            variables(
-              :version => new_resource.parsed_version,
+              :my_cnf => my_cnf,
               :mysql_name => mysql_name
               )
             action :create
-            notifies :run, "execute[import #{mysql_name} manifest]", :immediately
           end
 
-          execute "import #{mysql_name} manifest" do
-            command "svccfg import /tmp/#{mysql_name}.xml"
-            action :nothing
+          smf "#{new_resource.parsed_name} :create #{mysql_name}" do
+            name mysql_name
+            user new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            start_command "/lib/svc/method/#{mysql_name} start"
           end
 
           service "#{new_resource.parsed_name} :create #{mysql_name}" do
@@ -127,62 +126,27 @@ class Chef
             action [:start, :enable]
           end
 
-          # execute 'wait for mysql' do
-          #   command "until [ -S #{socket_file} ] ; do sleep 1 ; done"
-          #   timeout 10
-          #   action :run
-          # end
+          # moar resources here
+        end
 
-          # execute 'assign-root-password' do
-          #   cmd = "#{prefix_dir}/bin/mysqladmin"
-          #   cmd << ' -u root password '
-          #   cmd << Shellwords.escape(new_resource.parsed_root_password)
-          #   command cmd
-          #   action :run
-          #   only_if "#{prefix_dir}/bin/mysql -u root -e 'show databases;'"
-          # end
-
-          # template '/etc/mysql_grants.sql' do
-          #   cookbook 'mysql'
-          #   source 'grants/grants.sql.erb'
-          #   owner 'root'
-          #   group 'root'
-          #   mode '0600'
-          #   variables(:config => new_resource)
-          #   action :create
-          #   notifies :run, 'execute[install-grants]'
-          # end
-
-          # execute 'install-grants' do
-          #   cmd = "#{prefix_dir}/bin/mysql"
-          #   cmd << ' -u root '
-          #   cmd << "#{pass_string} < /etc/mysql_grants.sql"
-          #   command cmd
-          #   retries 5
-          #   retry_delay 2
-          #   action :nothing
-          #   notifies :run, 'execute[create root marker]'
-          # end
-
-          # execute 'create root marker' do
-          #   cmd = '/bin/echo'
-          #   cmd << " '#{Shellwords.escape(new_resource.parsed_root_password)}'"
-          #   cmd << ' > /etc/.mysql_root'
-          #   cmd << ' ;/bin/chmod 0600 /etc/.mysql_root'
-          #   command cmd
-          #   action :nothing
-          # end
+        action :delete do
+          service "#{new_resource.parsed_name} :create #{mysql_name}" do
+            service_name mysql_name
+            action [:stop]
+          end
         end
 
         action :restart do
-          service 'mysql' do
+          service "#{new_resource.parsed_name} :create #{mysql_name}" do
+            service_name mysql_name
             supports :restart => true
             action :restart
           end
         end
 
         action :reload do
-          service 'mysql' do
+          service "#{new_resource.parsed_name} :create #{mysql_name}" do
+            service_name mysql_name
             supports :reload => true
             action :reload
           end

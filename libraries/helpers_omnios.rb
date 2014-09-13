@@ -8,7 +8,7 @@ module MysqlCookbook
       def mysql_name
         "mysql-#{new_resource.parsed_instance}"
       end
-      
+
       def include_dir
         "/opt/mysql#{pkg_ver_string}/etc/#{mysql_name}/conf.d"
       end
@@ -30,7 +30,7 @@ module MysqlCookbook
       end
 
       def run_dir
-        "/var/run/#{mysql_name}"        
+        "/var/run/#{mysql_name}"
       end
 
       def socket_file

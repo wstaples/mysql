@@ -11,11 +11,10 @@ case "$1" in
 start)
         <%= @base_dir %>/bin/mysqld \
             --defaults-file=<%= @my_cnf %> \
-            --user=mysql \
             --basedir=<%= @base_dir %> \
             --datadir=<%= @data_dir %> \
             --pid-file=<%= @pid_file %> \
-            --log-error=/var/log/mysql/error.log &
+            --log-error=/var/adm/log/<%= @mysql_name %>/error.log &
         ;;
 stop)
         [ -f <%= @pid_file %> ] && kill `/usr/bin/head -1 <%= @pid_file %>`
