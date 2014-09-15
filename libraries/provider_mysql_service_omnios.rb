@@ -125,9 +125,9 @@ class Chef
             supports :restart => true
             action [:start, :enable]
           end
-          
+
           # FIXME: make these work, then factor into a common library
-          
+
           # # mysql database settings
           # ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
           #   block { repair_mysql_password_charset }
@@ -180,7 +180,7 @@ class Chef
             block { repair_repl_acl_extras }
             action :nothing
           end
-          
+
         end
 
         action :delete do

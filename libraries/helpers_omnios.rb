@@ -36,7 +36,7 @@ module MysqlCookbook
       def socket_file
         "#{run_dir}/#{mysql_name}.sock"
       end
-      
+
       # FIXME: refactor into common lib
       def test_root_password
         cmd = '/opt/mysql55/bin/mysql' # make variable
@@ -47,11 +47,11 @@ module MysqlCookbook
         info = shell_out(cmd)
         info.exitstatus == 0 ? true : false
       end
-      
+
       def mysql_w_network_resource_pass
         "/usr/bin/mysql -u root -h 127.0.0.1 -P #{new_resource.parsed_port} -p#{Shellwords.escape(new_resource.parsed_root_password)}"
       end
-      
+
       def try_really_hard(query, database)
         info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass} -D #{database} --skip-column-names")
         return info.stdout.chomp if info.exitstatus == 0
@@ -65,7 +65,6 @@ module MysqlCookbook
         return info.stdout.chomp if info.exitstatus == 0
         false
       end
-      
     end
   end
 end
