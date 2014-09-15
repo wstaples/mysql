@@ -1,6 +1,6 @@
 require 'chef/provider/lwrp_base'
-require_relative 'helpers_debian'
 require 'shellwords'
+require_relative 'helpers_debian'
 
 class Chef
   class Provider
