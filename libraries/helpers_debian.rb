@@ -18,11 +18,6 @@ module MysqlCookbook
         "mysql-#{new_resource.parsed_instance}"
       end
 
-      def mysql_password_charset
-        query = "SELECT CHARACTER_SET_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'user' AND COLUMN_NAME = 'Password';"
-        try_really_hard(query, 'mysql')
-      end
-
       def mysql_version
         new_resource.parsed_version
       end

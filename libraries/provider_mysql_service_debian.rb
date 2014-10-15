@@ -186,13 +186,6 @@ class Chef
             action [:start]
           end
 
-          # # mysql database settings
-          # ruby_block "#{new_resource.parsed_name} :create repair_mysql_password_charset" do
-          #   block { repair_mysql_password_charset }
-          #   not_if { mysql_password_charset == 'utf8' }
-          #   action :run
-          # end
-
           # setup debian-sys-maint
           ruby_block "#{new_resource.parsed_name} :create repair_debian_password" do
             block { repair_debian_password }
@@ -214,14 +207,6 @@ class Chef
             content new_resource.parsed_root_password
             action :nothing
           end
-
-          # # remove test database
-          # ruby_block "#{new_resource.parsed_name} :create repair_remove_test_database" do
-          #   block { repair_remove_test_database }
-          #   not_if { test_remove_test_database }
-          #   only_if { new_resource.parsed_remove_test_database }
-          #   action :run
-          # end
 
           # remove anonymous_users
           ruby_block "#{new_resource.parsed_name} :create repair_remove_anonymous_users" do
