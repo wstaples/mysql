@@ -12,6 +12,7 @@ class Chef
           true
         end
 
+        include MysqlCookbook::Helpers
         include MysqlCookbook::Helpers::Debian
 
         action :create do

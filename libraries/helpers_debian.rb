@@ -100,25 +100,6 @@ module MysqlCookbook
         "#{run_dir}/#{mysql_name}.pid"
       end
 
-      def try_really_hard(query, database)
-        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass} -D #{database} --skip-column-names")
-        return info.stdout.chomp if info.exitstatus == 0
-        info = shell_out("echo \"#{query}\" | #{mysql_w_network_stashed_pass} -D #{database} --skip-column-names")
-        return info.stdout.chomp if info.exitstatus == 0
-        info = shell_out("echo \"#{query}\" | #{mysql_w_socket_resource_pass} -D #{database} --skip-column-names")
-        return info.stdout.chomp if info.exitstatus == 0
-        info = shell_out("echo \"#{query}\" | #{mysql_w_socket_stashed_pass} -D #{database} --skip-column-names")
-        return info.stdout.chomp if info.exitstatus == 0
-        info = shell_out("echo \"#{query}\" | #{mysql_w_socket} -D #{database} --skip-column-names")
-        return info.stdout.chomp if info.exitstatus == 0
-        false
-      end
-
-      def repair_mysql_password_charset
-        query = "ALTER TABLE user CHANGE Password Password char(41) character set utf8 collate utf8_bin DEFAULT '' NOT NULL;"
-        try_really_hard(query, 'mysql')
-      end
-
       def repair_debian_password
         query = 'GRANT SELECT, INSERT, UPDATE, DELETE,'
         query << ' CREATE, DROP, RELOAD, SHUTDOWN, PROCESS,'
@@ -128,12 +109,6 @@ module MysqlCookbook
         query << " REPLICATION CLIENT ON *.* TO 'debian-sys-maint'@'localhost'"
         query << " IDENTIFIED BY '#{new_resource.parsed_debian_password}'"
         query << ' WITH GRANT OPTION;'
-        try_really_hard(query, 'mysql')
-      end
-
-      def repair_root_password
-        query = "UPDATE mysql.user SET Password=PASSWORD('#{new_resource.parsed_root_password}')"
-        query << " WHERE User='root'; FLUSH PRIVILEGES;"
         try_really_hard(query, 'mysql')
       end
 
@@ -164,69 +139,6 @@ module MysqlCookbook
         cmd << " -p#{Shellwords.escape(new_resource.parsed_root_password)}"
         info = shell_out(cmd)
         info.exitstatus == 0 ? true : false
-      end
-
-      def repair_remove_test_database
-        query = 'DROP DATABASE IF EXISTS test;'
-        query << " DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';"
-        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
-        return true if info.stdout.empty?
-      end
-
-      def test_remove_test_database
-        query = "SHOW DATABASES LIKE 'test';"
-        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
-        return true if info.stdout.empty?
-      end
-
-      def repair_remove_anonymous_users
-        query = "DELETE FROM user WHERE User=''"
-        try_really_hard(query, 'mysql')
-      end
-
-      def test_remove_anonymous_users
-        query = "SELECT * FROM user WHERE User=''"
-        try_really_hard(query, 'mysql')
-      end
-
-      def test_root_acl(acl)
-        query = "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='#{acl}';"
-        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
-        return false unless info.exitstatus == 0
-        return false if info.stdout.empty?
-        true
-      end
-
-      def repair_root_acl(acl)
-        query = " GRANT ALL PRIVILEGES ON *.* TO 'root'@'#{acl}'"
-        query << " IDENTIFIED BY '#{new_resource.parsed_root_password}' WITH GRANT OPTION;"
-        try_really_hard(query, 'mysql')
-      end
-
-      def test_repl_acl(acl)
-        query = "SELECT Host,User,Password FROM mysql.user WHERE User='repl' AND Host='#{acl}';"
-        info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
-        return false unless info.exitstatus == 0
-        return false if info.stdout.empty?
-        true
-      end
-
-      def repair_repl_acl(acl)
-        query = " GRANT REPLICATION SLAVE ON *.* TO 'repl'@'#{acl}' "
-        query << " IDENTIFIED BY '#{new_resource.parsed_repl_password}';"
-        try_really_hard(query, 'mysql')
-      end
-
-      def repair_repl_acl_extras
-        query = "DELETE FROM mysql.user WHERE User='repl'"
-        query << " AND Host NOT IN ('#{new_resource.repl_acl.join('\', \'')}');"
-        try_really_hard(query, 'mysql')
-      end
-
-      def repair_root_acl_extras
-        query = "DELETE FROM mysql.user WHERE User='root'"
-        query << " AND Host NOT IN ('#{new_resource.root_acl.join('\', \'')}');"
-        try_really_hard(query, 'mysql')
       end
     end
   end
