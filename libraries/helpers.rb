@@ -209,57 +209,29 @@ end
 
 module MysqlCookbook
   module Helpers
-    # FIXME: refactor into common lib
-    def try_really_hard(query, database)
-      info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass} -D #{database} --skip-column-names")
-      return info.stdout.chomp if info.exitstatus == 0
-      info = shell_out("echo \"#{query}\" | #{mysql_w_network_stashed_pass} -D #{database} --skip-column-names")
-      return info.stdout.chomp if info.exitstatus == 0
-      info = shell_out("echo \"#{query}\" | #{mysql_w_socket_resource_pass} -D #{database} --skip-column-names")
-      return info.stdout.chomp if info.exitstatus == 0
-      info = shell_out("echo \"#{query}\" | #{mysql_w_socket_stashed_pass} -D #{database} --skip-column-names")
-      return info.stdout.chomp if info.exitstatus == 0
-      info = shell_out("echo \"#{query}\" | #{mysql_w_socket} -D #{database} --skip-column-names")
-      return info.stdout.chomp if info.exitstatus == 0
-      false
+    def mysql_w_network_resource_pass
+      "#{mysql_bin} -u root -h 127.0.0.1 -P #{new_resource.parsed_port} -p#{Shellwords.escape(new_resource.parsed_root_password)}"
     end
 
-    def repair_root_password
-      query = "UPDATE mysql.user SET Password=PASSWORD('#{new_resource.parsed_root_password}')"
-      query << " WHERE User='root'; FLUSH PRIVILEGES;"
-      try_really_hard(query, 'mysql')
+    def mysql_w_network_stashed_pass
+      "#{mysql_bin} -u root -h 127.0.0.1 -P #{new_resource.parsed_port} -p#{Shellwords.escape(stashed_pass)}"
     end
 
-    def test_root_acl(acl)
-      query = "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='#{acl}';"
-      info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
-      return false unless info.exitstatus == 0
-      return false if info.stdout.empty?
-      true
+    def mysql_w_socket
+      "#{mysql_bin} -S #{socket_file}"
     end
 
-    def repair_root_acl(acl)
-      query = " GRANT ALL PRIVILEGES ON *.* TO 'root'@'#{acl}'"
-      query << " IDENTIFIED BY '#{new_resource.parsed_root_password}' WITH GRANT OPTION;"
-      try_really_hard(query, 'mysql')
+    def mysql_w_socket_resource_pass
+      "#{mysql_bin} -S #{socket_file} -p#{Shellwords.escape(new_resource.parsed_root_password)}"
     end
 
-    def test_remove_anonymous_users
-      query = "SELECT * FROM user WHERE User=''"
-      try_really_hard(query, 'mysql')
+    def mysql_w_socket_stashed_pass
+      "#{mysql_bin} -S #{socket_file} -p#{Shellwords.escape(stashed_pass)}"
     end
 
     def repair_remove_anonymous_users
       query = "DELETE FROM user WHERE User=''"
       try_really_hard(query, 'mysql')
-    end
-
-    def test_repl_acl(acl)
-      query = "SELECT Host,User,Password FROM mysql.user WHERE User='repl' AND Host='#{acl}';"
-      info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
-      return false unless info.exitstatus == 0
-      return false if info.stdout.empty?
-      true
     end
 
     def repair_repl_acl(acl)
@@ -274,10 +246,72 @@ module MysqlCookbook
       try_really_hard(query, 'mysql')
     end
 
+    def repair_root_acl(acl)
+      query = " GRANT ALL PRIVILEGES ON *.* TO 'root'@'#{acl}'"
+      query << " IDENTIFIED BY '#{new_resource.parsed_root_password}' WITH GRANT OPTION;"
+      try_really_hard(query, 'mysql')
+    end
+
     def repair_root_acl_extras
       query = "DELETE FROM mysql.user WHERE User='root'"
       query << " AND Host NOT IN ('#{new_resource.root_acl.join('\', \'')}');"
       try_really_hard(query, 'mysql')
+    end
+
+    def repair_root_password
+      query = "UPDATE mysql.user SET Password=PASSWORD('#{new_resource.parsed_root_password}')"
+      query << " WHERE User='root'; FLUSH PRIVILEGES;"
+      try_really_hard(query, 'mysql')
+    end
+
+    def stashed_pass
+      return ::File.open("#{etc_dir}/.mysql_root").read.chomp if ::File.exist?("#{etc_dir}/.mysql_root")
+      ''
+    end
+
+    def try_really_hard(query, database)
+      info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass} -D #{database} --skip-column-names")
+      return info.stdout.chomp if info.exitstatus == 0
+      info = shell_out("echo \"#{query}\" | #{mysql_w_network_stashed_pass} -D #{database} --skip-column-names")
+      return info.stdout.chomp if info.exitstatus == 0
+      info = shell_out("echo \"#{query}\" | #{mysql_w_socket_resource_pass} -D #{database} --skip-column-names")
+      return info.stdout.chomp if info.exitstatus == 0
+      info = shell_out("echo \"#{query}\" | #{mysql_w_socket_stashed_pass} -D #{database} --skip-column-names")
+      return info.stdout.chomp if info.exitstatus == 0
+      info = shell_out("echo \"#{query}\" | #{mysql_w_socket} -D #{database} --skip-column-names")
+      return info.stdout.chomp if info.exitstatus == 0
+      false
+    end
+
+    def test_remove_anonymous_users
+      query = "SELECT * FROM user WHERE User=''"
+      try_really_hard(query, 'mysql')
+    end
+
+    def test_repl_acl(acl)
+      query = "SELECT Host,User,Password FROM mysql.user WHERE User='repl' AND Host='#{acl}';"
+      info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
+      return false unless info.exitstatus == 0
+      return false if info.stdout.empty?
+      true
+    end
+
+    def test_root_acl(acl)
+      query = "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='#{acl}';"
+      info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
+      return false unless info.exitstatus == 0
+      return false if info.stdout.empty?
+      true
+    end
+
+    def test_root_password
+      cmd = mysql_bin
+      cmd << " --defaults-file=#{etc_dir}/my.cnf"
+      cmd << ' -u root'
+      cmd << " -e 'show databases;'"
+      cmd << " -p#{Shellwords.escape(new_resource.parsed_root_password)}"
+      info = shell_out(cmd)
+      info.exitstatus == 0 ? true : false
     end
   end
 end

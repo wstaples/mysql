@@ -2,8 +2,6 @@ require 'chef/provider/lwrp_base'
 require 'shellwords'
 require_relative 'helpers_omnios'
 
-# include Opscode::Mysql::Helpers
-
 class Chef
   class Provider
     class MysqlService

@@ -7,11 +7,19 @@ module MysqlCookbook
       include Chef::Mixin::ShellOut
 
       def debian_mysql_cmd
-        "/usr/bin/mysql --defaults-file=/etc/#{mysql_name}/debian.cnf -e 'show databases;'"
+        "#{mysql_bin} --defaults-file=#{etc_dir}/debian.cnf -e 'show databases;'"
+      end
+
+      def etc_dir
+        "/etc/#{mysql_name}"
       end
 
       def include_dir
-        "/etc/#{mysql_name}/conf.d"
+        "#{etc_dir}/conf.d"
+      end
+
+      def mysql_bin
+        '/usr/bin/mysql'
       end
 
       def mysql_name
@@ -22,69 +30,8 @@ module MysqlCookbook
         new_resource.parsed_version
       end
 
-      def mysql_w_network_stashed_pass
-        "/usr/bin/mysql -u root -h 127.0.0.1 -P #{new_resource.parsed_port} -p#{Shellwords.escape(stashed_pass)}"
-      end
-
-      def mysql_w_network_stashed_pass_working?
-        query = 'show databases;'
-        cmd = "echo \"#{query}\""
-        cmd << " | #{mysql_w_network_stashed_pass}"
-        cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :returns => [0, 1])
-        info.exitstatus == 0 ? true : false
-      end
-
-      def mysql_w_network_resource_pass
-        "/usr/bin/mysql -u root -h 127.0.0.1 -P #{new_resource.parsed_port} -p#{Shellwords.escape(new_resource.parsed_root_password)}"
-      end
-
-      def mysql_w_network_resource_pass_working?
-        query = 'show databases;'
-        cmd = "echo \"#{query}\""
-        cmd << " | #{mysql_w_network_resource_pass}"
-        cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :returns => [0, 1])
-        info.exitstatus == 0 ? true : false
-      end
-
-      def mysql_w_socket_stashed_pass
-        "/usr/bin/mysql -S #{socket_file} -p#{Shellwords.escape(stashed_pass)}"
-      end
-
-      def mysql_w_socket_stashed_pass_working?
-        query = 'show databases;'
-        cmd = "echo \"#{query}\""
-        cmd << " | #{mysql_w_socket_stashed_pass}"
-        cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :returns => [0, 1])
-        info.exitstatus == 0 ? true : false
-      end
-
-      def mysql_w_socket_resource_pass
-        "/usr/bin/mysql -S #{socket_file} -p#{Shellwords.escape(new_resource.parsed_root_password)}"
-      end
-
-      def mysql_w_socket_resource_pass_working?
-        query = 'show databases;'
-        cmd = "echo \"#{query}\""
-        cmd << " | #{mysql_w_socket_resource_pass}"
-        cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :returns => [0, 1])
-        info.exitstatus == 0 ? true : false
-      end
-
-      def mysql_w_socket
-        "/usr/bin/mysql -S #{socket_file}"
-      end
-
-      def mysql_w_socket_working?
-        query = 'show databases;'
-        cmd = "echo \"#{query}\""
-        cmd << " | #{mysql_w_socket}"
-        cmd << ' --skip-column-names'
-        info = shell_out!(cmd, :returns => [0, 1])
-        info.exitstatus == 0 ? true : false
+      def pid_file
+        "#{run_dir}/#{mysql_name}.pid"
       end
 
       def platform_and_version
@@ -94,10 +41,6 @@ module MysqlCookbook
         when 'ubuntu'
           "ubuntu-#{node['platform_version']}"
         end
-      end
-
-      def pid_file
-        "#{run_dir}/#{mysql_name}.pid"
       end
 
       def repair_debian_password
@@ -120,24 +63,9 @@ module MysqlCookbook
         "#{run_dir}/#{mysql_name}.sock"
       end
 
-      def stashed_pass
-        return ::File.open("/etc/#{mysql_name}/.mysql_root").read.chomp if ::File.exist?("/etc/#{mysql_name}/.mysql_root")
-        ''
-      end
-
       def test_debian_password
         query = 'show databases;'
         info = shell_out("echo \"#{query}\" | #{debian_mysql_cmd}")
-        info.exitstatus == 0 ? true : false
-      end
-
-      def test_root_password
-        cmd = '/usr/bin/mysql'
-        cmd << " --defaults-file=/etc/#{mysql_name}/my.cnf"
-        cmd << ' -u root'
-        cmd << " -e 'show databases;'"
-        cmd << " -p#{Shellwords.escape(new_resource.parsed_root_password)}"
-        info = shell_out(cmd)
         info.exitstatus == 0 ? true : false
       end
     end
