@@ -11,7 +11,7 @@ module MysqlCookbook
       end
 
       def etc_dir
-        "#{base_dir}/etc/#{mysql_name}/"
+        "#{base_dir}/etc/#{mysql_name}"
       end
 
       def include_dir

@@ -130,11 +130,11 @@ class Chef
             block { repair_root_password }
             not_if { test_root_password }
             action :run
-            notifies :create, "file[#{new_resource.parsed_name} :create #{base_dir}/etc/#{mysql_name}/.mysql_root]"
+            notifies :create, "file[#{new_resource.parsed_name} :create #{etc_dir}/.mysql_root]"
           end
 
-          file "#{new_resource.parsed_name} :create #{base_dir}/etc/#{mysql_name}/.mysql_root" do
-            path "#{base_dir}/etc/#{mysql_name}/.mysql_root"
+          file "#{new_resource.parsed_name} :create #{etc_dir}/.mysql_root" do
+            path "#{etc_dir}/.mysql_root"
             mode '0600'
             content new_resource.parsed_root_password
             action :nothing
@@ -143,7 +143,7 @@ class Chef
           # remove anonymous_users
           ruby_block "#{new_resource.parsed_name} :create repair_remove_anonymous_users" do
             block { repair_remove_anonymous_users }
-            only_if { test_remove_anonymous_users }
+            not_if { test_remove_anonymous_users }
             only_if { new_resource.parsed_remove_anonymous_users }
             action :run
           end

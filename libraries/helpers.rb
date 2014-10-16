@@ -314,7 +314,7 @@ module MysqlCookbook
       cmd << " -e 'show databases;'"
       cmd << " -p#{Shellwords.escape(new_resource.parsed_root_password)}"
       info = shell_out(cmd)
-      puts "SEANDEBUG: test_root_password: ##{cmd}"
+      puts "SEANDEBUG: test_root_password: #{cmd}"
       info.exitstatus == 0 ? true : false
     end
   end
