@@ -172,6 +172,19 @@ suites:
        version: '5.5'
 
   #
+  # service56-single
+  #
+  - name: service56-single
+    run_list:
+    - recipe[mysql_service::single]
+    includes: [
+      'omnios-151006'
+    ]
+    attributes:
+      mysql:
+       version: '5.6'
+
+  #
   # service55-multi
   #
   - name: service55-multi
@@ -184,6 +197,29 @@ suites:
     attributes:
       mysql:
        version: '5.5'
+       port: '3308'
+       data_dir: '/data/instance-2'
+       run_user: 'bob'
+       remove_anonymous_users: true
+       remove_test_database: true
+       root_acl: [ '127.0.0.1', 'mercury', 'venus', 'earth' ]
+       root_password: 'never gonna make you cry'
+       repl_acl: [ '127.0.0.1', '::1', 'localhost', 'mars', 'jupiter', 'saturn', 'uranus' ]
+       repl_password: 'never gonna say goodbye'
+       server_debian_password: 'never gonna tell a lie and hurt you'
+
+  #
+  # service56-multi
+  #
+  - name: service56-multi
+    run_list:
+    - recipe[mysql_service::multi]
+    includes: [
+      'omnios-151006'
+    ]
+    attributes:
+      mysql:
+       version: '5.6'
        port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'

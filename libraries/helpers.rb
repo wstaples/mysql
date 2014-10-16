@@ -284,8 +284,11 @@ module MysqlCookbook
     end
 
     def test_remove_anonymous_users
-      query = "SELECT * FROM user WHERE User=''"
-      try_really_hard(query, 'mysql')
+      query = "SELECT Host,User FROM mysql.user WHERE User=''"
+      info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
+      return false unless info.exitstatus == 0
+      return false if info.stdout.empty?
+      true
     end
 
     def test_repl_acl(acl)
@@ -311,6 +314,7 @@ module MysqlCookbook
       cmd << " -e 'show databases;'"
       cmd << " -p#{Shellwords.escape(new_resource.parsed_root_password)}"
       info = shell_out(cmd)
+      puts "SEANDEBUG: test_root_password: ##{cmd}"
       info.exitstatus == 0 ? true : false
     end
   end

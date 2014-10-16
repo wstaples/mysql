@@ -125,8 +125,6 @@ class Chef
             action [:start, :enable]
           end
 
-          # FIXME: make these work, then factor into a common library
-
           # set root password
           ruby_block "#{new_resource.parsed_name} :create repair_root_password" do
             block { repair_root_password }
@@ -145,7 +143,7 @@ class Chef
           # remove anonymous_users
           ruby_block "#{new_resource.parsed_name} :create repair_remove_anonymous_users" do
             block { repair_remove_anonymous_users }
-            not_if { test_remove_anonymous_users }
+            only_if { test_remove_anonymous_users }
             only_if { new_resource.parsed_remove_anonymous_users }
             action :run
           end
