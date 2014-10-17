@@ -302,6 +302,7 @@ module MysqlCookbook
     def test_root_acl(acl)
       query = "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='#{acl}';"
       info = shell_out("echo \"#{query}\" | #{mysql_w_network_resource_pass}")
+      puts "SEANDEBUG: test_root_acl:  echo \"#{query}\" | #{mysql_w_network_resource_pass}"
       return false unless info.exitstatus == 0
       return false if info.stdout.empty?
       true
