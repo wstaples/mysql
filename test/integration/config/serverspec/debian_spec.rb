@@ -1,12 +1,10 @@
 require 'serverspec'
 
-include Serverspec::Helper::Exec
-include Serverspec::Helper::DetectOS
+set :backend, :exec
 
-property[:os] = backend.check_os
-platform = property[:os][:family]
+platform = os[:family]
 
-if platform =~ /Debian/ || platform =~ /Ubuntu/
+if platform =~ /debian/ || platform =~ /ubuntu/
   describe file('/etc/mysql-default') do
     it { should be_directory }
     it { should be_mode 755 }
@@ -16,16 +14,16 @@ if platform =~ /Debian/ || platform =~ /Ubuntu/
 
   describe file('/etc/mysql-default/conf.d') do
     it { should be_directory }
-    it { should be_mode 755 }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
+    it { should be_mode 750 }
+    it { should be_owned_by 'mysql' }
+    it { should be_grouped_into 'mysql' }
   end
 
-  describe file('/etc/mysql-default/conf.d/hello.conf') do
+  describe file('/etc/mysql-default/conf.d/hello.cnf') do
     it { should be_file }
-    it { should be_mode 644 }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
+    it { should be_mode 640 }
+    it { should be_owned_by 'mysql' }
+    it { should be_grouped_into 'mysql' }
   end
 
   describe file('/etc/mysql-foo') do
@@ -37,15 +35,15 @@ if platform =~ /Debian/ || platform =~ /Ubuntu/
 
   describe file('/etc/mysql-foo/conf.d') do
     it { should be_directory }
-    it { should be_mode 755 }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
+    it { should be_mode 750 }
+    it { should be_owned_by 'mysql' }
+    it { should be_grouped_into 'mysql' }
   end
 
-  describe file('/etc/mysql-foo/conf.d/hello_again.conf') do
+  describe file('/etc/mysql-foo/conf.d/hello_again.cnf') do
     it { should be_file }
-    it { should be_mode 644 }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
+    it { should be_mode 640 }
+    it { should be_owned_by 'mysql' }
+    it { should be_grouped_into 'mysql' }
   end
 end

@@ -154,7 +154,7 @@ class Chef
             block { repair_root_acl_extras }
             action :nothing
           end
-          
+
           # remove anonymous_users
           ruby_block "#{new_resource.parsed_name} :create repair_remove_anonymous_users" do
             block { repair_remove_anonymous_users }
