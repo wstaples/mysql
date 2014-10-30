@@ -2,5 +2,5 @@
 
 mysql_service 'default' do
   version node['mysql']['version']
-  action :create
+  action [:create, :start]
 end
