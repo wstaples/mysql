@@ -20,32 +20,32 @@ provisioner:
   require_chef_omnibus: 11.16.4
 
 platforms:
-# - name: centos-5.8
-#   driver_plugin: digital_ocean
-#   driver_config:
-#     size: 1gb
-#     image: centos-5-8-x64
-#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+- name: centos-5.8
+  driver_plugin: digital_ocean
+  driver_config:
+    size: 1gb
+    image: centos-5-8-x64
+    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-# - name: centos-6.5
-#   driver_plugin: digital_ocean
-#   driver_config:
-#     size: 1gb
-#     image: centos-6-5-x64
-#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+- name: centos-6.5
+  driver_plugin: digital_ocean
+  driver_config:
+    size: 1gb
+    image: centos-6-5-x64
+    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-# - name: centos-7.0
-#   driver_plugin: digital_ocean
-#   driver_config:
-#     size: 1gb
-#     image: centos-7-0-x64
-#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+- name: centos-7.0
+  driver_plugin: digital_ocean
+  driver_config:
+    size: 1gb
+    image: centos-7-0-x64
+    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
 # - name: fedora-20
 #   driver_plugin: digital_ocean
@@ -164,6 +164,9 @@ suites:
     - recipe[mysql_service::single]
     includes: [
       'debian-7.0',
+      'centos-5.8',
+      'centos-6.5',
+      'centos-7.0',
       'omnios-151006'
     ]
     attributes:
@@ -177,6 +180,9 @@ suites:
     run_list:
     - recipe[mysql_service::single]
     includes: [
+      'centos-5.8',
+      'centos-6.5',
+      'centos-7.0',
       'omnios-151006'
     ]
     attributes:
@@ -191,6 +197,9 @@ suites:
     - recipe[mysql_service::multi]
     includes: [
       'debian-7.0',
+      'centos-5.8',
+      'centos-6.5',
+      'centos-7.0',
       'omnios-151006'
     ]
     attributes:
@@ -214,6 +223,9 @@ suites:
     run_list:
     - recipe[mysql_service::multi]
     includes: [
+      'centos-5.8',
+      'centos-6.5',
+      'centos-7.0',
       'omnios-151006'
     ]
     attributes:

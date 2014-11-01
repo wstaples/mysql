@@ -117,7 +117,6 @@ class Chef
               :include_dir => include_dir
               )
             action :create
-            # notifies :restart, "service[#{new_resource.parsed_name} :create #{mysql_name}]"
           end
 
           # initialize mysql database
@@ -133,118 +132,6 @@ class Chef
             EOF
             not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
             action :run
-          end
-
-          # service
-          template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/debian.cnf" do
-            path "/etc/#{mysql_name}/debian.cnf"
-            cookbook 'mysql'
-            source 'debian/debian.cnf.erb'
-            owner 'root'
-            group 'root'
-            mode '0600'
-            variables(
-              :config => new_resource,
-              :socket_file => socket_file
-              )
-            action :create
-          end
-
-          # sysvinit
-          template "#{new_resource.parsed_name} :create /etc/init.d/#{mysql_name}" do
-            path "/etc/init.d/#{mysql_name}"
-            source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
-            owner 'root'
-            group 'root'
-            mode '0755'
-            variables(
-              :mysql_name => mysql_name,
-              :data_dir => new_resource.parsed_data_dir
-              )
-            cookbook 'mysql'
-            action :create
-          end
-
-          template "#{new_resource.parsed_name} :create /etc/#{mysql_name}/debian-start" do
-            path "/etc/#{mysql_name}/debian-start"
-            cookbook 'mysql'
-            source 'debian/debian-start.erb'
-            owner 'root'
-            group 'root'
-            mode '0755'
-            variables(
-              :config => new_resource,
-              :mysql_name => mysql_name,
-              :socket_file => socket_file
-              )
-            action :create
-          end
-
-          service "#{new_resource.parsed_name} :create #{mysql_name}" do
-            service_name mysql_name
-            provider Chef::Provider::Service::Init
-            supports :restart => true, :status => true
-            action [:start]
-          end
-
-          # setup debian-sys-maint
-          ruby_block "#{new_resource.parsed_name} :create repair_debian_password" do
-            block { repair_debian_password }
-            not_if { test_debian_password }
-            action :run
-          end
-
-          # set root password
-          ruby_block "#{new_resource.parsed_name} :create repair_root_password" do
-            block { repair_root_password }
-            not_if { test_root_password }
-            action :run
-            notifies :create, "file[#{new_resource.parsed_name} :create #{etc_dir}/.mysql_root]"
-          end
-
-          file "#{new_resource.parsed_name} :create #{etc_dir}/.mysql_root" do
-            path "#{etc_dir}/.mysql_root"
-            mode '0600'
-            content new_resource.parsed_root_password
-            action :nothing
-          end
-
-          # remove anonymous_users
-          ruby_block "#{new_resource.parsed_name} :create repair_remove_anonymous_users" do
-            block { repair_remove_anonymous_users }
-            not_if { test_remove_anonymous_users }
-            only_if { new_resource.parsed_remove_anonymous_users }
-            action :run
-          end
-
-          # repair repl ACL
-          new_resource.repl_acl.each do |acl|
-            ruby_block "#{new_resource.parsed_name} :create repl_acl #{acl}" do
-              block { repair_repl_acl acl }
-              not_if { test_repl_acl acl }
-              notifies :run, "ruby_block[#{new_resource.parsed_name} :create repl_acl_extras]"
-              action :run
-            end
-          end
-
-          ruby_block "#{new_resource.parsed_name} :create repl_acl_extras" do
-            block { repair_repl_acl_extras }
-            action :nothing
-          end
-
-          # repair root ACL
-          new_resource.root_acl.each do |acl|
-            ruby_block "#{new_resource.parsed_name} :create root_acl #{acl}" do
-              block { repair_root_acl acl }
-              not_if { test_root_acl acl }
-              notifies :run, "ruby_block[#{new_resource.parsed_name} :create root_acl_extras]"
-              action :run
-            end
-          end
-
-          ruby_block "#{new_resource.parsed_name} :create root_acl_extras" do
-            block { repair_root_acl_extras }
-            action :nothing
           end
         end
 
@@ -289,6 +176,44 @@ class Chef
           end
         end
 
+        action :start do
+          template "#{new_resource.parsed_name} :create /etc/init.d/#{mysql_name}" do
+            path "/etc/init.d/#{mysql_name}"
+            source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
+            owner 'root'
+            group 'root'
+            mode '0755'
+            variables(
+              :mysql_name => mysql_name,
+              :mysqld_safe_bin => mysqld_safe_bin,
+              :data_dir => new_resource.parsed_data_dir,
+              :pid_file => pid_file,
+              :port => new_resource.parsed_port,
+              :socket_file => socket_file,
+              :run_user => new_resource.parsed_run_user,
+              :base_dir => base_dir
+              )
+            cookbook 'mysql'
+            action :create
+          end
+
+          service "#{new_resource.parsed_name} :start #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true, :status => true
+            action [:start]
+          end
+        end
+
+        action :stop do
+          service "#{new_resource.parsed_name} :stop #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true, :status => true
+            action [:stop]
+          end
+        end
+
         action :restart do
           service "#{new_resource.parsed_name} :restart #{mysql_name}" do
             service_name mysql_name
@@ -305,6 +230,68 @@ class Chef
             action :reload
           end
         end
+
+        # action :wat do
+        #   # setup debian-sys-maint
+        #   ruby_block "#{new_resource.parsed_name} :create repair_debian_password" do
+        #     block { repair_debian_password }
+        #     not_if { test_debian_password }
+        #     action :run
+        #   end
+
+        #   # set root password
+        #   ruby_block "#{new_resource.parsed_name} :create repair_root_password" do
+        #     block { repair_root_password }
+        #     not_if { test_root_password }
+        #     action :run
+        #     notifies :create, "file[#{new_resource.parsed_name} :create #{etc_dir}/.mysql_root]"
+        #   end
+
+        #   file "#{new_resource.parsed_name} :create #{etc_dir}/.mysql_root" do
+        #     path "#{etc_dir}/.mysql_root"
+        #     mode '0600'
+        #     content new_resource.parsed_root_password
+        #     action :nothing
+        #   end
+
+        #   # remove anonymous_users
+        #   ruby_block "#{new_resource.parsed_name} :create repair_remove_anonymous_users" do
+        #     block { repair_remove_anonymous_users }
+        #     not_if { test_remove_anonymous_users }
+        #     only_if { new_resource.parsed_remove_anonymous_users }
+        #     action :run
+        #   end
+
+        #   # repair repl ACL
+        #   new_resource.repl_acl.each do |acl|
+        #     ruby_block "#{new_resource.parsed_name} :create repl_acl #{acl}" do
+        #       block { repair_repl_acl acl }
+        #       not_if { test_repl_acl acl }
+        #       notifies :run, "ruby_block[#{new_resource.parsed_name} :create repl_acl_extras]"
+        #       action :run
+        #     end
+        #   end
+
+        #   ruby_block "#{new_resource.parsed_name} :create repl_acl_extras" do
+        #     block { repair_repl_acl_extras }
+        #     action :nothing
+        #   end
+
+        #   # repair root ACL
+        #   new_resource.root_acl.each do |acl|
+        #     ruby_block "#{new_resource.parsed_name} :create root_acl #{acl}" do
+        #       block { repair_root_acl acl }
+        #       not_if { test_root_acl acl }
+        #       notifies :run, "ruby_block[#{new_resource.parsed_name} :create root_acl_extras]"
+        #       action :run
+        #     end
+        #   end
+
+        #   ruby_block "#{new_resource.parsed_name} :create root_acl_extras" do
+        #     block { repair_root_acl_extras }
+        #     action :nothing
+        #   end
+        # end
       end
     end
   end

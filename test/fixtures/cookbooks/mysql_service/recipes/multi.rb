@@ -30,14 +30,7 @@ mysql_service 'instance-1' do
   port '3307'
   data_dir '/data/instance-1'
   run_user 'alice'
-  remove_anonymous_users true
-  remove_test_database true
-  root_acl ['%']
-  root_password 'never gonna give you up'
-  repl_acl nil
-  repl_password 'never gonna let you down'
-  debian_password 'never gonna run around and desert you'
-  action :create
+  action [:create, :start]
 end
 
 # pass everything from node attributes
@@ -46,14 +39,7 @@ mysql_service 'instance-2' do
   port node['mysql']['port']
   data_dir node['mysql']['data_dir']
   run_user node['mysql']['run_user']
-  remove_anonymous_users node['mysql']['remove_anonymous_users']
-  remove_test_database node['mysql']['remove_test_database']
-  root_password node['mysql']['root_password']
-  root_acl node['mysql']['root_acl']
-  repl_password node['mysql']['repl_password']
-  repl_acl node['mysql']['repl_acl']
-  debian_password node['mysql']['debian_password']
-  action :create
+  action [:create, :start]
 end
 
 # log 'notify restart' do

@@ -6,6 +6,10 @@ module MysqlCookbook
     module Debian
       include Chef::Mixin::ShellOut
 
+      def base_dir
+        '/usr'
+      end
+
       def debian_mysql_cmd
         "#{mysql_bin} --defaults-file=#{etc_dir}/debian.cnf -e 'show databases;'"
       end
@@ -28,6 +32,10 @@ module MysqlCookbook
 
       def mysql_version
         new_resource.parsed_version
+      end
+
+      def mysqld_safe_bin
+        '/usr/bin/mysqld_safe'
       end
 
       def pid_file
