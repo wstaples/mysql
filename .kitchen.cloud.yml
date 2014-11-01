@@ -20,32 +20,32 @@ provisioner:
   require_chef_omnibus: 11.16.4
 
 platforms:
-- name: centos-5.8
-  driver_plugin: digital_ocean
-  driver_config:
-    size: 1gb
-    image: centos-5-8-x64
-    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+# - name: centos-5.8
+#   driver_plugin: digital_ocean
+#   driver_config:
+#     size: 1gb
+#     image: centos-5-8-x64
+#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-- name: centos-6.5
-  driver_plugin: digital_ocean
-  driver_config:
-    size: 1gb
-    image: centos-6-5-x64
-    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+# - name: centos-6.5
+#   driver_plugin: digital_ocean
+#   driver_config:
+#     size: 1gb
+#     image: centos-6-5-x64
+#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-- name: centos-7.0
-  driver_plugin: digital_ocean
-  driver_config:
-    size: 1gb
-    image: centos-7-0-x64
-    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+# - name: centos-7.0
+#   driver_plugin: digital_ocean
+#   driver_config:
+#     size: 1gb
+#     image: centos-7-0-x64
+#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
 # - name: fedora-20
 #   driver_plugin: digital_ocean
@@ -143,17 +143,17 @@ platforms:
 #     sudo: false
 #     chef_omnibus_url: https://raw.github.com/test-kitchen/kitchen-joyent/master/scripts/install-smartos.sh
 
-# - name: omnios-151006
-#   driver_plugin: ec2
-#   driver_config:
-#     image_id: ami-35eb835c
-#     flavor_id: m3.medium
-#     username: root
-#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-#   provisioner:
-#     name: chef_zero
-#   run_list:
-#   - recipe[ips-omniti]
+- name: omnios-151006
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-35eb835c
+    flavor_id: m3.medium
+    username: root
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+  provisioner:
+    name: chef_zero
+  run_list:
+  - recipe[ips-omniti]
 
 suites:
   #

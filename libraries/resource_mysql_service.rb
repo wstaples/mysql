@@ -15,11 +15,6 @@ class Chef
       attribute :package_name, :kind_of => String, :default => nil
       attribute :package_version, :kind_of => String, :default => nil
       attribute :port, :kind_of => String, :default => '3306'
-      attribute :remove_anonymous_users, :kind_of => [TrueClass, FalseClass], :default => true
-      attribute :remove_test_database, :kind_of => [TrueClass, FalseClass], :default => true
-      attribute :repl_acl, :kind_of => Array, :default => []
-      attribute :repl_password, :kind_of => String, :default => nil
-      attribute :root_acl, :kind_of => Array, :default => ['127.0.0.1', '::1', 'localhost']
       attribute :root_password, :kind_of => String, :default => 'ilikerandompasswords'
       attribute :run_group, :kind_of => String, :default => 'mysql'
       attribute :run_user, :kind_of => String, :default => 'mysql'
@@ -75,18 +70,6 @@ class Chef
       return port if port
     end
 
-    def parsed_remove_anonymous_users
-      return remove_anonymous_users unless remove_anonymous_users.nil?
-    end
-
-    def parsed_remove_test_database
-      return remove_test_database unless remove_test_database.nil?
-    end
-
-    def parsed_root_network_acl
-      return root_network_acl if root_network_acl
-    end
-
     def parsed_run_user
       return run_user if run_user
     end
@@ -97,18 +80,6 @@ class Chef
 
     def parsed_debian_password
       return debian_password if debian_password
-    end
-
-    def parsed_repl_acl
-      return repl_acl if repl_acl
-    end
-
-    def parsed_repl_password
-      return repl_password if repl_password
-    end
-
-    def parsed_root_acl
-      return root_acl if root_acl
     end
 
     def parsed_root_password
