@@ -12,7 +12,6 @@ class Chef
           true
         end
 
-        include MysqlCookbook::Helpers
         include MysqlCookbook::Helpers::Debian
 
         action :create do
@@ -55,8 +54,8 @@ class Chef
           end
 
           # support directories
-          directory "#{new_resource.parsed_name} :create /etc/#{mysql_name}" do
-            path "/etc/#{mysql_name}"
+          directory "#{new_resource.parsed_name} :create #{etc_dir}" do
+            path "#{etc_dir}"
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
             mode '0750'
@@ -78,8 +77,8 @@ class Chef
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
             mode '0755'
-            action :create
             recursive true
+            action :create
           end
 
           directory "#{new_resource.parsed_name} :create #{new_resource.parsed_data_dir}" do
@@ -125,18 +124,38 @@ class Chef
             cwd new_resource.parsed_data_dir
             code <<-EOF
             /usr/bin/mysql_install_db \
-             --basedir=/usr \
-             --defaults-file=/etc/#{mysql_name}/my.cnf \
-             --datadir=#{new_resource.parsed_data_dir} \
-             --user=#{new_resource.parsed_run_user}
+            --basedir=/usr \
+            --defaults-file=/etc/#{mysql_name}/my.cnf \
+            --datadir=#{new_resource.parsed_data_dir} \
+            --user=#{new_resource.parsed_run_user}
             EOF
             not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
             action :run
           end
+
+          # open privs for 'root'@'%' only_if first converge
+          # this matches the behavior of the official mysql Docker container
+          # https://registry.hub.docker.com/u/dockerfile/mysql/dockerfile/
+          bash "#{new_resource.parsed_name} :create grant initial privs" do
+            user new_resource.parsed_run_user
+            cwd new_resource.parsed_data_dir
+            code <<-EOF
+            #{mysqld_bin} \
+            --defaults-file=#{etc_dir}/my.cnf &
+            pid=$!
+            #{mysql_bin} \
+            -S /var/run/#{mysql_name}/#{mysql_name}.sock \
+            -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; \
+            FLUSH PRIVILEGES;"
+            kill $pid ; sleep 1
+            touch #{etc_dir}/.first_converge
+            EOF
+            creates "#{etc_dir}/.first_converge"
+          end
         end
 
         action :delete do
-          template "#{new_resource.parsed_name} :create /etc/init.d/#{mysql_name}" do
+          template "#{new_resource.parsed_name} :delete /etc/init.d/#{mysql_name}" do
             path "/etc/init.d/#{mysql_name}"
             source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
             owner 'root'
@@ -177,7 +196,7 @@ class Chef
         end
 
         action :start do
-          template "#{new_resource.parsed_name} :create /etc/init.d/#{mysql_name}" do
+          template "#{new_resource.parsed_name} :start /etc/init.d/#{mysql_name}" do
             path "/etc/init.d/#{mysql_name}"
             source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql.erb"
             owner 'root'

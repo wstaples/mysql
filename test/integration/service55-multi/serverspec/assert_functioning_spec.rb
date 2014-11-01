@@ -9,22 +9,16 @@ else
 end
 
 instance_1_cmd = cmd
-instance_1_cmd << ' -h 127.0.0.1'
-instance_1_cmd << ' -P 3307'
-instance_1_cmd << ' -u root'
-instance_1_cmd << ' -pnever\\ gonna\\ give\\ you\\ up'
-instance_1_cmd << " -e \"SELECT Host,User,Password FROM mysql.user WHERE User='root' OR User='repl'; \""
+instance_1_cmd << ' -S /var/run/mysql-instance-1/mysql-instance-1.sock'
+instance_1_cmd << " -e \"SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='%'; \""
 
 describe command(instance_1_cmd) do
   its(:exit_status) { should eq 0 }
 end
 
 instance_2_cmd = cmd
-instance_2_cmd << ' -h 127.0.0.1'
-instance_2_cmd << ' -P 3308'
-instance_2_cmd << ' -u root'
-instance_2_cmd << ' -pnever\\ gonna\\ make\\ you\\ cry'
-instance_2_cmd << " -e \"SELECT Host,User,Password FROM mysql.user WHERE User='root' OR User='repl'; \""
+instance_2_cmd << ' -S /var/run/mysql-instance-2/mysql-instance-2.sock'
+instance_2_cmd << " -e \"SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='%'; \""
 
 describe command(instance_2_cmd) do
   its(:exit_status) { should eq 0 }

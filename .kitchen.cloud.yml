@@ -252,6 +252,6 @@ suites:
   #
   # replication-test
   #
-  - name: replication-test
-    run_list:
-    - recipe[mysql_replication_test]
+  # - name: replication-test
+  #   run_list:
+  #   - recipe[mysql_replication_test]

@@ -26,6 +26,10 @@ module MysqlCookbook
         "#{base_dir}/bin/mysql"
       end
 
+      def mysqld_bin
+        "#{base_dir}/bin/mysqld"
+      end
+
       def mysql_name
         "mysql-#{new_resource.parsed_instance}"
       end
