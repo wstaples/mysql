@@ -96,8 +96,8 @@ class Chef
             action :create
           end
 
-          directory "#{new_resource.parsed_name} :create #{base_dir}/var/log/#{mysql_name}" do
-            path "#{base_dir}/var/log/#{mysql_name}"
+          directory "#{new_resource.parsed_name} :create #{base_dir}/var/log/#{local_service_name}" do
+            path "#{base_dir}/var/log/#{local_service_name}"
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
             mode '0750'
@@ -149,7 +149,7 @@ class Chef
             --defaults-file=#{etc_dir}/my.cnf &
             pid=$!
             #{mysql_bin} \
-            -S /var/run/#{mysql_name}/#{mysql_name}.sock \
+            -S /var/run/#{local_service_name}/#{local_service_name}.sock \
             -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; \
             FLUSH PRIVILEGES;"
             kill $pid ; sleep 1
@@ -162,14 +162,14 @@ class Chef
         action :delete do
         end
 
-        action :start do            
-          template "#{new_resource.parsed_name} :start /etc/init.d/#{mysql_name}" do
-            path "/etc/init.d/#{mysql_name}"
+        action :start do
+          template "#{new_resource.parsed_name} :start /etc/init.d/#{local_service_name}" do
+            path "/etc/init.d/#{local_service_name}"
             source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql55-mysqld.erb"
             owner 'root'
             group 'root'
             mode '0755'
-            variables(              
+            variables(
               :base_dir => base_dir,
               :data_dir => new_resource.parsed_data_dir,
               :local_service_name => local_service_name,
@@ -178,18 +178,18 @@ class Chef
               :port => new_resource.parsed_port,
               :run_user => new_resource.parsed_run_user,
               :scl_name => scl_name,
-              :socket_file => socket_file              
+              :socket_file => socket_file
               )
             cookbook 'mysql'
             action :create
           end
 
-          service "#{new_resource.parsed_name} :start #{mysql_name}" do
-            service_name mysql_name
-            provider Chef::Provider::Service::Init
-            supports :restart => true, :status => true
-            action [:start]
-          end
+          # service "#{new_resource.parsed_name} :start #{mysql_name}" do
+          #   service_name mysql_name
+          #   provider Chef::Provider::Service::Init
+          #   supports :restart => true, :status => true
+          #   action [:start]
+          # end
         end
 
         action :stop do

@@ -60,7 +60,7 @@ start(){
 	          MYSQLDRUNNING=1
 	      fi
     fi
-    RESPONSE=`<%= @base_dir %>/usr/bin/mysqladmin --socket="<%= @socketfile %>" --user=UNKNOWN_MYSQL_USER ping 2>&1`
+    RESPONSE=`<%= @base_dir %>/usr/bin/mysqladmin --socket="<%= @socket_file %>" --user=UNKNOWN_MYSQL_USER ping 2>&1`
 
     if [ $MYSQLDRUNNING = 1 ] && [ $? = 0 ]; then
 	      # already running, do nothing
@@ -90,14 +90,21 @@ start(){
 	      # and some users might prefer to configure logging to syslog.)
 	      # Note: set --basedir to prevent probes that might trigger SELinux
 	      # alarms, per bug #547485
-	      if [ -S "<%= @socketfile %>" ] ; then
+	      if [ -S "<%= @socket_file %>" ] ; then
 		        echo "Another MySQL daemon already running with the same unix socket."
 		        action $"Starting <%= @local_service_name %>: " /bin/false
 		        return 1
 	      fi
-	      $exec   --datadir="<%= @datadir %>" --socket="<%= @socketfile %>" \
-		        --pid-file="<%= @pid_file %>" \
-		        --basedir=<%= @base_dir %>/usr --user=mysql >/dev/null 2>&1 &
+        echo "SEANDEBUG: --datadir: <%= @data_dir %>"
+        echo "SEANDEBUG: --socket: <%= @socket_file %>"
+        echo "SEANDEBUG: --basedir: <%= @base_dir %>"
+        echo "SEANDEBUG: --pid-file: <%= @pid_file %>"
+	      $exec \
+            --datadir="<%= @data_dir %>" \
+            --socket="<%= @socket_file %>" \
+  		      --pid-file="<%= @pid_file %>" \
+		        --basedir="<%= @base_dir %>/usr" \
+            --user="<%= @run_user %>" >/dev/null 2>&1 &
 	      safe_pid=$!
 	      # Spin for a maximum of N seconds waiting for the server to come up;
 	      # exit the loop immediately if mysqld_safe process disappears.
@@ -106,7 +113,7 @@ start(){
 	      ret=0
 	      TIMEOUT="$STARTTIMEOUT"
 	      while [ $TIMEOUT -gt 0 ]; do
-	          RESPONSE=`<%= @base_dir %>/usr/bin/mysqladmin --socket="<%= @socketfile %>" --user=UNKNOWN_MYSQL_USER ping 2>&1`
+	          RESPONSE=`<%= @base_dir %>/usr/bin/mysqladmin --socket="<%= @socket_file %>" --user=UNKNOWN_MYSQL_USER ping 2>&1`
 	          mret=$?
 	          if [ $mret -eq 0 ]; then
 		            break
@@ -166,7 +173,7 @@ stop(){
 		            action $"Stopping <%= @local_service_name %>: " /bin/false
 		        else
 		            rm -f $lockfile
-		            rm -f "<%= @socketfile %>"
+		            rm -f "<%= @socket_file %>"
 		            action $"Stopping <%= @local_service_name %>: " /bin/true
 		        fi
 	      else
