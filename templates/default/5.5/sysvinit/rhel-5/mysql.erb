@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+### BEGIN INIT INFO
+# Provides:          <%= @mysql_name %>
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Should-Start:      $network $time
+# Should-Stop:       $network $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start and stop the mysql database server daemon
+# Description:       Controls the main MySQL database server daemon "mysqld"
+#                    and its wrapper script "mysqld_safe".
+### END INIT INFO
+#
+set -e
+set -u
+${DEBIAN_SCRIPT_DEBUG:+ set -v -x}
+
+# Safeguard (relative paths, core dumps..)
+umask 077
+cd /
+export HOME=/etc/<%= @mysql_name %>/
+
+# Boolean function to see if MySQL is running
+running() {
+    MYSQLD_RUNNING=1
+    if [ -f <%= @pid_file %> ]; then
+        MYSQLD_PID=`cat <%= @pid_file %> 2>/dev/null`
+	      if [ -n "$MYSQLD_PID" ] && [ -d "/proc/$MYSQLD_PID" ] ; then
+	          MYSQLD_RUNNING=0
+	      fi
+    fi
+    return $MYSQLD_RUNNING
+}
+
+# Start MySQL
+start() {
+    if running; then
+        echo "MySQL instance <%= @mysql_name %> already running. Not starting."
+        return 0;
+    else
+        echo "Starting MySQL instance <%= @mysql_name %>"
+        scl enable mysql55 \
+        "<%= @mysqld_safe_bin %> \
+            --datadir=<%= @data_dir %> \
+            --socket=<%= @socket_file %> \
+            --pid-file=<%= @pid_file %> \
+            --basedir=<%= @base_dir %> \
+            --port=<%= @port %> \
+            --user=<%= @run_user %> >/dev/null 2>&1 &"
+        return $?
+    fi
+}
+
+# Status of MySQL
+status() {
+    if running; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Stop MySQL
+stop() {
+    if running; then
+        echo "Stopping MySQL instance <%= @mysql_name %>"
+        if [ -f <%= @pid_file %> ]; then
+            /bin/kill `cat <%= @pid_file %> 2>/dev/null`
+            kstat=$?
+            sleep 1
+        fi
+        return $kstat
+    else
+        echo "MySQL instance <%= @mysql_name %> not running. Nothing to do."
+        return 0
+    fi
+}
+
+# Reload MySQL
+reload() {
+    echo "Sending HUP signal to  <%= @mysql_name %>"
+    # FIXME: add some sanity checking around this
+    MYSQLD_PID=`cat <%= @pid_file %> 2>/dev/null`
+    kill -HUP $MYSQLD_PID
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart)
+        stop ; start
+        ;;
+    reload)
+        reload
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|reload}"
+        exit 2
+esac
+
+exit $?

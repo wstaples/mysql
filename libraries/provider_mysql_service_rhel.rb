@@ -29,141 +29,176 @@ class Chef
             end
           end
 
-          package new_resource.parsed_package_name do
-            action new_resource.parsed_package_action
+          package "#{new_resource.parsed_name} :create #{new_resource.parsed_package_name}" do
+            package_name new_resource.parsed_package_name
             version new_resource.parsed_package_version
+            action new_resource.parsed_package_action
           end
 
-          # directory include_dir do
-          #   owner 'mysql'
-          #   group 'mysql'
-          #   mode '0750'
-          #   recursive true
-          #   action :create
-          # end
+          # Turns out that mysqld is hard coded to try and read
+          # /etc/mysql/my.cnf, and its presence causes problems when
+          # setting up multiple services.
+          file "#{new_resource.parsed_name} :create /etc/mysql/my.cnf" do
+            path '/etc/mysql/my.cnf'
+            action :delete
+          end
 
-          # directory run_dir do
-          #   owner 'mysql'
-          #   group 'mysql'
-          #   mode '0755'
-          #   recursive true
-          #   action :create
-          # end
+          file "#{new_resource.parsed_name} :create /etc/my.cnf" do
+            path '/etc/my.cnf'
+            action :delete
+          end
 
-          # directory new_resource.parsed_data_dir do
-          #   owner 'mysql'
-          #   group 'mysql'
-          #   mode '0755'
-          #   recursive true
-          #   action :create
-          # end
+          group "#{new_resource.parsed_name} :create #{new_resource.parsed_run_group}" do
+            group_name new_resource.parsed_run_group
+            action :create
+          end
 
-          # service service_name do
-          #   supports :restart => true
-          #   action [:start, :enable]
-          # end
+          user "#{new_resource.parsed_name} :create #{new_resource.parsed_run_user}" do
+            username new_resource.parsed_run_user
+            gid new_resource.parsed_run_user
+            action :create
+          end
 
-          # execute 'wait for mysql' do
-          #   command "until [ -S #{socket_file} ] ; do sleep 1 ; done"
-          #   timeout 10
-          #   action :run
-          # end
+          # support directories
+          directory "#{new_resource.parsed_name} :create #{etc_dir}" do
+            path "#{etc_dir}"
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0750'
+            recursive true
+            action :create
+          end
 
-          # template '/etc/mysql_grants.sql' do
-          #   cookbook 'mysql'
-          #   source 'grants/grants.sql.erb'
-          #   owner 'root'
-          #   group 'root'
-          #   mode '0600'
-          #   variables(:config => new_resource)
-          #   action :create
-          #   notifies :run, 'execute[install-grants]'
-          # end
+          directory "#{new_resource.parsed_name} :create #{include_dir}" do
+            path include_dir
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0750'
+            recursive true
+            action :create
+          end
 
-          # execute 'install-grants' do
-          #   cmd = "#{prefix_dir}/bin/mysql"
-          #   cmd << ' -u root '
-          #   cmd << "#{pass_string} < /etc/mysql_grants.sql"
-          #   command cmd
-          #   action :nothing
-          #   notifies :run, 'execute[create root marker]'
-          # end
+          directory "#{new_resource.parsed_name} :create #{run_dir}" do
+            path run_dir
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0755'
+            recursive true
+            action :create
+          end
 
-          # template "#{base_dir}/etc/my.cnf" do
-          #   if new_resource.parsed_template_source.nil?
-          #     source "#{new_resource.parsed_version}/my.cnf.erb"
-          #     cookbook 'mysql'
-          #   else
-          #     source new_resource.parsed_template_source
-          #   end
-          #   owner 'mysql'
-          #   group 'mysql'
-          #   mode '0600'
-          #   variables(
-          #     :base_dir => base_dir,
-          #     :data_dir => new_resource.parsed_data_dir,
-          #     :include_dir => include_dir,
-          #     :lc_messages_dir => lc_messages_dir,
-          #     :pid_file => pid_file,
-          #     :port => new_resource.parsed_port,
-          #     :socket_file => socket_file
-          #     )
-          #   action :create
-          #   notifies :run, 'bash[move mysql data to datadir]'
-          #   notifies :restart, "service[#{service_name}]"
-          # end
+          directory "#{new_resource.parsed_name} :create #{new_resource.parsed_data_dir}" do
+            path new_resource.parsed_data_dir
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0750'
+            recursive true
+            action :create
+          end
 
-          # bash 'move mysql data to datadir' do
-          #   user 'root'
-          #   code <<-EOH
-          #     service #{service_name} stop \
-          #     && for i in `ls #{base_dir}/var/lib/mysql | grep -v mysql.sock` ; do mv #{base_dir}/var/lib/mysql/$i #{new_resource.parsed_data_dir} ; done
-          #     EOH
-          #   action :nothing
-          #   creates "#{new_resource.parsed_data_dir}/ibdata1"
-          #   creates "#{new_resource.parsed_data_dir}/ib_logfile0"
-          #   creates "#{new_resource.parsed_data_dir}/ib_logfile1"
-          # end
+          directory "#{new_resource.parsed_name} :create #{base_dir}/var/log/#{mysql_name}" do
+            path "#{base_dir}/var/log/#{mysql_name}"
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0750'
+            recursive true
+            action :create
+          end
 
-          # execute 'assign-root-password' do
-          #   cmd = "#{prefix_dir}/bin/mysqladmin"
-          #   cmd << ' -u root password '
-          #   cmd << Shellwords.escape(new_resource.parsed_server_root_password)
-          #   command cmd
-          #   action :run
-          #   only_if "#{prefix_dir}/bin/mysql -u root -e 'show databases;'"
-          # end
+          # FIXME: pass new_resource as config
+          template "#{new_resource.parsed_name} :create #{etc_dir}/my.cnf" do
+            path "#{etc_dir}/my.cnf"
+            source "#{new_resource.parsed_version}/my.cnf.erb"
+            cookbook 'mysql'
+            owner new_resource.parsed_run_user
+            group new_resource.parsed_run_group
+            mode '0600'
+            variables(
+              :run_user => new_resource.parsed_run_user,
+              :data_dir => new_resource.parsed_data_dir,
+              :pid_file => pid_file,
+              :socket_file => socket_file,
+              :port => new_resource.parsed_port,
+              :include_dir => include_dir
+              )
+            action :create
+          end
 
-          # execute 'create root marker' do
-          #   cmd = '/bin/echo'
-          #   cmd << " '#{Shellwords.escape(new_resource.parsed_server_root_password)}'"
-          #   cmd << ' > /etc/.mysql_root'
-          #   cmd << ' ;/bin/chmod 0600 /etc/.mysql_root'
-          #   command cmd
-          #   action :nothing
-          # end
+          # initialize mysql database
+          bash "#{new_resource.parsed_name} :create initialize mysql database" do
+            user new_resource.parsed_run_user
+            cwd new_resource.parsed_data_dir
+            code <<-EOF
+            scl enable mysql55 \
+            "#{mysql_install_db} \
+            --datadir=#{new_resource.parsed_data_dir} \
+            --user=#{new_resource.parsed_run_user}"
+            EOF
+            not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
+            action :run
+          end
+
+          # open privs for 'root'@'%' only_if first converge
+          # this matches the behavior of the official mysql Docker container
+          # https://registry.hub.docker.com/u/dockerfile/mysql/dockerfile/
+          bash "#{new_resource.parsed_name} :create grant initial privs" do
+            user new_resource.parsed_run_user
+            cwd new_resource.parsed_data_dir
+            code <<-EOF
+            #{mysqld_bin} \
+            --defaults-file=#{etc_dir}/my.cnf &
+            pid=$!
+            #{mysql_bin} \
+            -S /var/run/#{mysql_name}/#{mysql_name}.sock \
+            -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; \
+            FLUSH PRIVILEGES;"
+            kill $pid ; sleep 1
+            touch #{etc_dir}/.first_converge
+            EOF
+            creates "#{etc_dir}/.first_converge"
+          end
         end
 
         action :delete do
         end
 
-        action :start do
+        action :start do            
+          template "#{new_resource.parsed_name} :start /etc/init.d/#{mysql_name}" do
+            path "/etc/init.d/#{mysql_name}"
+            source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql55-mysqld.erb"
+            owner 'root'
+            group 'root'
+            mode '0755'
+            variables(              
+              :base_dir => base_dir,
+              :data_dir => new_resource.parsed_data_dir,
+              :local_service_name => local_service_name,
+              :mysqld_safe_bin => mysqld_safe_bin,
+              :pid_file => pid_file,
+              :port => new_resource.parsed_port,
+              :run_user => new_resource.parsed_run_user,
+              :scl_name => scl_name,
+              :socket_file => socket_file              
+              )
+            cookbook 'mysql'
+            action :create
+          end
+
+          service "#{new_resource.parsed_name} :start #{mysql_name}" do
+            service_name mysql_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true, :status => true
+            action [:start]
+          end
         end
 
         action :stop do
         end
 
         action :restart do
-          # service service_name do
-          #   supports :restart => true
-          #   action :restart
-          # end
         end
 
         action :reload do
-          # service service_name do
-          #   action :reload
-          # end
         end
       end
     end
