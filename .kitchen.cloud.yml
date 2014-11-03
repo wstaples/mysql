@@ -157,6 +157,19 @@ platforms:
 
 suites:
   #
+  # service51-single
+  #
+  - name: service51-single
+    run_list:
+    - recipe[mysql_service::single]
+    includes: [
+      'centos-5.8',
+    ]
+    attributes:
+      mysql:
+       version: '5.1'
+
+  #
   # service55-single
   #
   - name: service55-single
@@ -190,6 +203,21 @@ suites:
        version: '5.6'
 
   #
+  # service51-multi
+  #
+  - name: service51-multi
+    run_list:
+    - recipe[mysql_service::multi]
+    includes: [
+      'centos-5.8',
+    ]
+    attributes:
+      mysql:
+       version: '5.1'
+       data_dir: '/data/instance-2'
+       run_user: 'bob'
+
+  #
   # service55-multi
   #
   - name: service55-multi
@@ -208,13 +236,6 @@ suites:
        port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
-       remove_anonymous_users: true
-       remove_test_database: true
-       root_acl: [ '127.0.0.1', 'mercury', 'venus', 'earth' ]
-       root_password: 'never gonna make you cry'
-       repl_acl: [ '127.0.0.1', '::1', 'localhost', 'mars', 'jupiter', 'saturn', 'uranus' ]
-       repl_password: 'never gonna say goodbye'
-       server_debian_password: 'never gonna tell a lie and hurt you'
 
   #
   # service56-multi
@@ -234,13 +255,6 @@ suites:
        port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
-       remove_anonymous_users: true
-       remove_test_database: true
-       root_acl: [ '127.0.0.1', 'mercury', 'venus', 'earth' ]
-       root_password: 'never gonna make you cry'
-       repl_acl: [ '127.0.0.1', '::1', 'localhost', 'mars', 'jupiter', 'saturn', 'uranus' ]
-       repl_password: 'never gonna say goodbye'
-       server_debian_password: 'never gonna tell a lie and hurt you'
 
   #
   # config

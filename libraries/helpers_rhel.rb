@@ -2,19 +2,41 @@ module MysqlCookbook
   module Helpers
     module Rhel
 
-      def base_dir
-        case node['platform_version'].to_i
-        when 5
-          case new_resource.parsed_version
-          when '5.0'
-            base_dir = ''
-          when '5.1'
-            base_dir = '/opt/rh/mysql51/root'
-          when '5.5'
-            base_dir = '/opt/rh/mysql55/root'
-          end
+      def scl_package?
+        if node['platform_version'].to_i == 5
+          return true if new_resource.parsed_version == '5.1'
+          return true if new_resource.parsed_version == '5.5'
         end
-        base_dir
+        return false
+      end
+
+      def scl_name
+        if node['platform_version'].to_i == 5
+          return 'mysql51' if new_resource.parsed_version == '5.1'
+          return 'mysql55' if new_resource.parsed_version == '5.5'
+        end
+        return nil
+      end
+
+      def initialize_cmd
+        if scl_package?
+          "scl enable #{scl_name} \"#{mysql_install_db}  --datadir=#{new_resource.parsed_data_dir}  --user=#{new_resource.parsed_run_user}\""
+        else
+          "#{mysql_install_db} --datadir=#{new_resource.parsed_data_dir}  --user=#{new_resource.parsed_run_user}"
+        end
+      end
+
+      def sysvinit_template
+        if scl_package?
+          "#{mysql_version}/sysvinit/#{platform_and_version}/scl-sysvinit.erb"
+        else
+          "#{mysql_version}/sysvinit/#{platform_and_version}/sysvinit.erb"
+        end
+      end
+
+      def base_dir
+        return "/opt/rh/#{scl_name}/root" if scl_package?
+        return nil
       end
 
       def etc_dir
@@ -23,14 +45,6 @@ module MysqlCookbook
 
       def include_dir
         "#{etc_dir}/conf.d"
-      end
-
-      def lc_messages_dir
-        case node['platform_version'].to_i
-        when 2014, 2013, 7, 6, 5
-          lc_messages_dir = nil
-        end
-        lc_messages_dir
       end
 
       def mysql_bin
@@ -55,10 +69,6 @@ module MysqlCookbook
 
       def mysqld_safe_bin
         "#{base_dir}/usr/bin/mysqld_safe"
-      end
-
-      def scl_name
-        "mysql55"
       end
 
       def local_service_name

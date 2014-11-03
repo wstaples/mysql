@@ -1,15 +1,15 @@
 #!/bin/sh
 #
-# mysql55-mysqld	This shell script takes care of starting and stopping
+# <%= @local_service_name %>	This shell script takes care of starting and stopping
 #                       the MySQL subsystem (mysqld).
 #
 # chkconfig: - 64 36
 # description:	MySQL database server.
 # processname: mysqld
-# config: /opt/rh/mysql55/root/etc/my.cnf
-# pidfile: /opt/rh/mysql55/root/var/run/mysqld/mysqld.pid
+# config: <%= @base_dir %>/etc/my.cnf
+# pidfile: <%= @base_dir %>/var/run/mysqld/mysqld.pid
 ### BEGIN INIT INFO
-# Provides: mysql55-mysqld
+# Provides: <%= @local_service_name %>
 # Required-Start: $local_fs $remote_fs $network $named $syslog $time
 # Required-Stop: $local_fs $remote_fs $network $named $syslog $time
 # Short-Description: start and stop MySQL server
@@ -23,16 +23,16 @@
 . /etc/sysconfig/network
 
 
-exec="/opt/rh/mysql55/root/usr/bin/mysqld_safe"
-prog="mysql55-mysqld"
+exec="<%= @base_dir %>/usr/bin/mysqld_safe"
+prog="<%= @local_service_name %>"
 
-# Set timeouts here so they can be overridden from /opt/rh/mysql55/root/etc/sysconfig/mysqld
+# Set timeouts here so they can be overridden from <%= @base_dir %>/etc/sysconfig/mysqld
 STARTTIMEOUT=120
 STOPTIMEOUT=60
 
-[ -e /opt/rh/mysql55/root/etc/sysconfig/$prog ] && . /opt/rh/mysql55/root/etc/sysconfig/$prog
+[ -e <%= @base_dir %>/etc/sysconfig/<%= @local_service_name %> ] && . <%= @base_dir %>/etc/sysconfig/<%= @local_service_name %>
 
-lockfile=/var/lock/subsys/$prog
+lockfile=/var/lock/subsys/<%= @local_service_name %>
 
 
 # extract value of a MySQL option from config files
@@ -41,73 +41,48 @@ lockfile=/var/lock/subsys/$prog
 # We use my_print_defaults which prints all options from multiple files,
 # with the more specific ones later; hence take the last match.
 get_mysql_option(){
-	  result=`/opt/rh/mysql55/root/usr/bin/my_print_defaults "$1" | sed -n "s/^--$2=//p" | tail -n 1`
+	  result=`<%= @base_dir %>/usr/bin/my_print_defaults "$1" | sed -n "s/^--$2=//p" | tail -n 1`
 	  if [ -z "$result" ]; then
 	      # not found, use default
 	      result="$3"
 	  fi
 }
 
-get_mysql_option mysqld datadir "/opt/rh/mysql55/root/var/lib/mysql"
-datadir="$result"
-get_mysql_option mysqld socket "/var/lib/mysql/mysql.sock"
-socketfile="$result"
-get_mysql_option mysqld_safe log-error "/var/log/mysql55-mysqld.log"
-errlogfile="$result"
-get_mysql_option mysqld_safe pid-file "/opt/rh/mysql55/root/var/run/mysqld/mysqld.pid"
-mypidfile="$result"
+errlogfile="/var/log/<%= @local_service_name %>.log"
 
 start(){
     [ -x $exec ] || exit 5
     # check to see if it's already running
     MYSQLDRUNNING=0
-    if [ -f "$mypidfile" ]; then
-        MYSQLPID=`cat "$mypidfile" 2>/dev/null`
+    if [ -f "<%= @pid_file %>" ]; then
+        MYSQLPID=`cat "<%= @pid_file %>" 2>/dev/null`
 	      if [ -n "$MYSQLPID" ] && [ -d "/proc/$MYSQLPID" ] ; then
 	          MYSQLDRUNNING=1
 	      fi
     fi
-    RESPONSE=`/opt/rh/mysql55/root/usr/bin/mysqladmin --socket="$socketfile" --user=UNKNOWN_MYSQL_USER ping 2>&1`
+    RESPONSE=`<%= @base_dir %>/usr/bin/mysqladmin --socket="<%= @socket_file %>" --user=UNKNOWN_MYSQL_USER ping 2>&1`
 
     if [ $MYSQLDRUNNING = 1 ] && [ $? = 0 ]; then
 	      # already running, do nothing
-	      action $"Starting $prog: " /bin/true
+	      action $"Starting <%= @local_service_name %>: " /bin/true
 	      ret=0
     elif [ $MYSQLDRUNNING = 1 ] && echo "$RESPONSE" | grep -q "Access denied for user"
     then
 	      # already running, do nothing
-	      action $"Starting $prog: " /bin/true
+	      action $"Starting <%= @local_service_name %>: " /bin/true
 	      ret=0
     else
     	  # prepare for start
 	      touch "$errlogfile" 2>/dev/null
 	      if [ $? -ne 0 ]; then
 	          # failed to touch log file, probably insufficient permissions
-	          action $"Starting $prog: " /bin/false
+	          action $"Starting <%= @local_service_name %>: " /bin/false
 	          return 4
 	      fi
-	      chown mysql:mysql "$errlogfile"
+	      chown <%= @run_user %>:<%= @run_user %> "$errlogfile"
 	      chmod 0640 "$errlogfile"
 	      [ -x /sbin/restorecon ] && /sbin/restorecon "$errlogfile"
-	      if [ ! -d "$datadir/mysql" ] ; then
-	          # First, make sure $datadir is there with correct permissions
-	          if [ ! -e "$datadir" -a ! -h "$datadir" ]
-	          then
-		            mkdir -p "$datadir" || exit 1
-	          fi
-	          chown mysql:mysql "$datadir"
-	          chmod 0755 "$datadir"
-	          [ -x /sbin/restorecon ] && /sbin/restorecon "$datadir"
-	          # Now create the database
-	          action $"Initializing MySQL database: " /opt/rh/mysql55/root/usr/bin/mysql_install_db --datadir="$datadir" --user=mysql
-	          ret=$?
-	          chown -R mysql:mysql "$datadir"
-	          if [ $ret -ne 0 ] ; then
-		            return $ret
-	          fi
-	      fi
-	      chown mysql:mysql "$datadir"
-	      chmod 0755 "$datadir"
+
 	      # Pass all the options determined above, to ensure consistent behavior.
 	      # In many cases mysqld_safe would arrive at the same conclusions anyway
 	      # but we need to be sure.  (An exception is that we don't force the
@@ -115,14 +90,13 @@ start(){
 	      # and some users might prefer to configure logging to syslog.)
 	      # Note: set --basedir to prevent probes that might trigger SELinux
 	      # alarms, per bug #547485
-	      if [ -S "$socketfile" ] ; then
+	      if [ -S "<%= @socket_file %>" ] ; then
 		        echo "Another MySQL daemon already running with the same unix socket."
-		        action $"Starting $prog: " /bin/false
+		        action $"Starting <%= @local_service_name %>: " /bin/false
 		        return 1
 	      fi
-	      $exec   --datadir="$datadir" --socket="$socketfile" \
-		        --pid-file="$mypidfile" \
-		        --basedir=/opt/rh/mysql55/root/usr --user=mysql >/dev/null 2>&1 &
+
+	      $exec --defaults-file="<%= @etc_dir %>/my.cnf" >/dev/null 2>&1 &
 	      safe_pid=$!
 	      # Spin for a maximum of N seconds waiting for the server to come up;
 	      # exit the loop immediately if mysqld_safe process disappears.
@@ -131,7 +105,7 @@ start(){
 	      ret=0
 	      TIMEOUT="$STARTTIMEOUT"
 	      while [ $TIMEOUT -gt 0 ]; do
-	          RESPONSE=`/opt/rh/mysql55/root/usr/bin/mysqladmin --socket="$socketfile" --user=UNKNOWN_MYSQL_USER ping 2>&1`
+	          RESPONSE=`<%= @base_dir %>/usr/bin/mysqladmin --socket="<%= @socket_file %>" --user=UNKNOWN_MYSQL_USER ping 2>&1`
 	          mret=$?
 	          if [ $mret -eq 0 ]; then
 		            break
@@ -158,23 +132,23 @@ start(){
 	          ret=1
 	      fi
 	      if [ $ret -eq 0 ]; then
-	          action $"Starting $prog: " /bin/true
-	          chmod o+r $mypidfile >/dev/null 2>&1
+	          action $"Starting <%= @local_service_name %>: " /bin/true
+	          chmod o+r <%= @pid_file %> >/dev/null 2>&1
 	          touch $lockfile
 	      else
-	          action $"Starting $prog: " /bin/false
+	          action $"Starting <%= @local_service_name %>: " /bin/false
 	      fi
     fi
     return $ret
 }
 
 stop(){
-	  if [ ! -f "$mypidfile" ]; then
+	  if [ ! -f "<%= @pid_file %>" ]; then
 	      # not running; per LSB standards this is "ok"
-	      action $"Stopping $prog: " /bin/true
+	      action $"Stopping <%= @local_service_name %>: " /bin/true
 	      return 0
 	  fi
-	  MYSQLPID=`cat "$mypidfile" 2>/dev/null`
+	  MYSQLPID=`cat "<%= @pid_file %>" 2>/dev/null`
 	  if [ -n "$MYSQLPID" ]; then
 	      /bin/kill "$MYSQLPID" >/dev/null 2>&1
 	      ret=$?
@@ -188,20 +162,20 @@ stop(){
 		        if [ $TIMEOUT -eq 0 ]; then
 		            echo "Timeout error occurred trying to stop MySQL Daemon."
 		            ret=1
-		            action $"Stopping $prog: " /bin/false
+		            action $"Stopping <%= @local_service_name %>: " /bin/false
 		        else
 		            rm -f $lockfile
-		            rm -f "$socketfile"
-		            action $"Stopping $prog: " /bin/true
+		            rm -f "<%= @socket_file %>"
+		            action $"Stopping <%= @local_service_name %>: " /bin/true
 		        fi
 	      else
 		        # kill command failed, probably insufficient permissions
-		        action $"Stopping $prog: " /bin/false
+		        action $"Stopping <%= @local_service_name %>: " /bin/false
 		        ret=4
 	      fi
 	  else
 	      # failed to read pidfile, probably insufficient permissions
-	      action $"Stopping $prog: " /bin/false
+	      action $"Stopping <%= @local_service_name %>: " /bin/false
 	      ret=4
 	  fi
 	  return $ret
@@ -220,15 +194,12 @@ condrestart(){
 # clears almost all environment variables.
 # Since X_SCLS is cleared as well, we lose information about other
 # collections enabled.
-. /opt/rh/mysql55/service-environment
-for sclname in $MYSQL55_MYSQLD_SCLS_ENABLED ; do
-    . /opt/rh/$sclname/enable
-    export X_SCLS="$X_SCLS $sclname"
-done
+. /opt/rh/<%= @scl_name %>/enable
+export X_SCLS="$X_SCLS <%= @scl_name %>"
 
 # we want start daemon only inside "scl enable" invocation
-if ! scl_enabled mysql55 ; then
-    echo "Collection mysql55 has to be listed in /opt/rh/mysql55/service-environment"
+if ! scl_enabled <%= @scl_name %> ; then
+    echo "Collection <%= @scl_name %> has to be listed in /opt/rh/<%= @scl_name %>/service-environment"
     exit 1
 fi
 
@@ -241,7 +212,7 @@ case "$1" in
         stop
         ;;
     status)
-        status -p $mypidfile $prog
+        status -p <%= @pid_file %> <%= @local_service_name %>
         ;;
     restart)
         restart

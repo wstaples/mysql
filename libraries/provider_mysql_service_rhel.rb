@@ -38,13 +38,13 @@ class Chef
           # Turns out that mysqld is hard coded to try and read
           # /etc/mysql/my.cnf, and its presence causes problems when
           # setting up multiple services.
-          file "#{new_resource.parsed_name} :create /etc/mysql/my.cnf" do
-            path '/etc/mysql/my.cnf'
+          file "#{new_resource.parsed_name} :create #{base_dir}/etc/mysql/my.cnf" do
+            path "#{base_dir}/etc/mysql/my.cnf"
             action :delete
           end
 
-          file "#{new_resource.parsed_name} :create /etc/my.cnf" do
-            path '/etc/my.cnf'
+          file "#{new_resource.parsed_name} :create #{base_dir}/etc/my.cnf" do
+            path "#{base_dir}/etc/my.cnf"
             action :delete
           end
 
@@ -114,38 +114,33 @@ class Chef
           end
 
           # initialize mysql database
-          bash "#{new_resource.parsed_name} :create initialize mysql database" do
+          execute "#{new_resource.parsed_name} :create initialize mysql database" do
             user new_resource.parsed_run_user
             cwd new_resource.parsed_data_dir
-            code <<-EOF
-            scl enable mysql55 \
-            "#{mysql_install_db} \
-            --datadir=#{new_resource.parsed_data_dir} \
-            --user=#{new_resource.parsed_run_user}"
-            EOF
+            command initialize_cmd
             not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
             action :run
           end
 
-          # open privs for 'root'@'%' only_if first converge
-          # this matches the behavior of the official mysql Docker container
-          # https://registry.hub.docker.com/u/dockerfile/mysql/dockerfile/
-          bash "#{new_resource.parsed_name} :create grant initial privs" do
-            user new_resource.parsed_run_user
-            cwd new_resource.parsed_data_dir
-            code <<-EOF
-            #{mysqld_bin} \
-            --defaults-file=#{etc_dir}/my.cnf &
-            pid=$!
-            #{mysql_bin} \
-            -S /var/run/#{local_service_name}/#{local_service_name}.sock \
-            -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; \
-            FLUSH PRIVILEGES;"
-            kill $pid ; sleep 1
-            touch #{etc_dir}/.first_converge
-            EOF
-            creates "#{etc_dir}/.first_converge"
-          end
+          # # open privs for 'root'@'%' only_if first converge
+          # # this matches the behavior of the official mysql Docker container
+          # # https://registry.hub.docker.com/u/dockerfile/mysql/dockerfile/
+          # bash "#{new_resource.parsed_name} :create grant initial privs" do
+          #   user new_resource.parsed_run_user
+          #   cwd new_resource.parsed_data_dir
+          #   code <<-EOF
+          #   #{mysqld_bin} \
+          #   --defaults-file=#{etc_dir}/my.cnf &
+          #   pid=$!
+          #   #{mysql_bin} \
+          #   -S /var/run/#{local_service_name}/#{local_service_name}.sock \
+          #   -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; \
+          #   FLUSH PRIVILEGES;"
+          #   kill $pid ; sleep 1
+          #   touch #{etc_dir}/.first_converge
+          #   EOF
+          #   creates "#{etc_dir}/.first_converge"
+          # end
         end
 
         action :delete do
@@ -154,7 +149,7 @@ class Chef
         action :start do
           template "#{new_resource.parsed_name} :start /etc/init.d/#{mysql_name}" do
             path "/etc/init.d/#{mysql_name}"
-            source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql55-mysqld.erb"
+            source sysvinit_template
             owner 'root'
             group 'root'
             mode '0755'
