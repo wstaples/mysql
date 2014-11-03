@@ -16,23 +16,41 @@ class Chef
 
         action :create do
           # we need to enable the yum-mysql-community repository to get packages
-          unless node['platform_version'].to_i == 5
-            case new_resource.parsed_version
-            when '5.5'
+          case new_resource.parsed_version
+          when '5.5'
+            # Prefer 5.5 from SCL
+            unless node['platform_version'].to_i == 5
               recipe_eval do
                 run_context.include_recipe 'yum-mysql-community::mysql55'
               end
-            when '5.6'
-              recipe_eval do
-                run_context.include_recipe 'yum-mysql-community::mysql56'
-              end
+            end
+          when '5.6'
+            recipe_eval do
+              run_context.include_recipe 'yum-mysql-community::mysql56'
+            end
+          when '5.7'
+            recipe_eval do
+              run_context.include_recipe 'yum-mysql-community::mysql57'
             end
           end
 
+          # Software installation
           package "#{new_resource.parsed_name} :create #{new_resource.parsed_package_name}" do
             package_name new_resource.parsed_package_name
             version new_resource.parsed_package_version
             action new_resource.parsed_package_action
+          end
+
+          # System users
+          group "#{new_resource.parsed_name} :create mysql" do
+            group_name 'mysql'
+            action :create
+          end
+
+          user "#{new_resource.parsed_name} :create mysql" do
+            username 'mysql'
+            gid 'mysql'
+            action :create
           end
 
           # Turns out that mysqld is hard coded to try and read

@@ -52,6 +52,12 @@ module Opscode
               },
               '5.5' => {
                 'package_name' => 'mysql55-mysql-server'
+              },
+              '5.6' => {
+                'package_name' => 'mysql-community-server'
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server'
               }
             },
             '6' => {
@@ -63,6 +69,9 @@ module Opscode
               },
               '5.6' => {
                 'package_name' => 'mysql-community-server'
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server'
               }
             },
             '7' => {
@@ -70,6 +79,9 @@ module Opscode
                 'package_name' => 'mysql-community-server'
               },
               '5.6' => {
+                'package_name' => 'mysql-community-server'
+              },
+              '5.7' => {
                 'package_name' => 'mysql-community-server'
               }
             },
@@ -87,6 +99,9 @@ module Opscode
               },
               '5.6' => {
                 'package_name' => 'mysql-community-server'
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server'
               }
             },
             '2014.03' => {
@@ -97,6 +112,9 @@ module Opscode
                 'package_name' => 'mysql-community-server'
               },
               '5.6' => {
+                'package_name' => 'mysql-community-server'
+              },
+              '5.7' => {
                 'package_name' => 'mysql-community-server'
               }
             }

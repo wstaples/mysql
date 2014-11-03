@@ -20,9 +20,9 @@ module MysqlCookbook
 
       def initialize_cmd
         if scl_package?
-          "scl enable #{scl_name} \"#{mysql_install_db}  --datadir=#{new_resource.parsed_data_dir}  --user=#{new_resource.parsed_run_user}\""
+          "scl enable #{scl_name} \"#{mysql_install_db} --datadir=#{new_resource.parsed_data_dir} --defaults-file=#{etc_dir}/my.cnf\""
         else
-          "#{mysql_install_db} --datadir=#{new_resource.parsed_data_dir}  --user=#{new_resource.parsed_run_user}"
+          "#{mysql_install_db} --datadir=#{new_resource.parsed_data_dir} --defaults-file=#{etc_dir}/my.cnf"
         end
       end
 
@@ -72,7 +72,8 @@ module MysqlCookbook
       end
 
       def local_service_name
-        "#{scl_name}-#{mysql_name}"
+        return mysql_name if scl_name.nil?
+        return "#{scl_name}-#{mysql_name}"
       end
 
       def pid_file

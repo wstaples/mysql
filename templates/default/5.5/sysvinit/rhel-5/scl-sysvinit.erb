@@ -48,7 +48,7 @@ get_mysql_option(){
 	  fi
 }
 
-errlogfile="/var/log/<%= @local_service_name %>.log"
+errlogfile="/var/log/<%= @local_service_name %>/error.log"
 
 start(){
     [ -x $exec ] || exit 5

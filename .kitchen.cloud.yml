@@ -23,7 +23,7 @@ platforms:
 - name: centos-5.8
   driver_plugin: digital_ocean
   driver_config:
-    size: 1gb
+    size: 2gb
     image: centos-5-8-x64
     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
@@ -32,7 +32,7 @@ platforms:
 # - name: centos-6.5
 #   driver_plugin: digital_ocean
 #   driver_config:
-#     size: 1gb
+#     size: 2gb
 #     image: centos-6-5-x64
 #     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
@@ -41,7 +41,7 @@ platforms:
 # - name: centos-7.0
 #   driver_plugin: digital_ocean
 #   driver_config:
-#     size: 1gb
+#     size: 2gb
 #     image: centos-7-0-x64
 #     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
@@ -50,7 +50,7 @@ platforms:
 # - name: fedora-20
 #   driver_plugin: digital_ocean
 #   driver_config:
-#     size: 1gb
+#     size: 2gb
 #     image: fedora-20-x64
 #     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
@@ -89,23 +89,23 @@ platforms:
 #     username: root
 #     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
 
-- name: debian-7.0
-  driver_plugin: gce
-  driver_config:
-    image_name: debian-7-wheezy-v20131120
-    zone: <%= ENV['GCE_ZONE'] %>
-    area: <%= ENV['GCE_AREA'] %>
-    network: <%= ENV['GCE_NETWORK'] %>
-    username: <%= ENV['GCE_USERNAME'] %>
-    public_key_path: <%= ENV['GCE_PUBLIC_KEY_PATH'] %>
-    ssh_key: <%= ENV['GCE_SSH_KEY_PATH'] %>
-  run_list:
-  - recipe[apt]
+# - name: debian-7.0
+#   driver_plugin: gce
+#   driver_config:
+#     image_name: debian-7-wheezy-v20131120
+#     zone: <%= ENV['GCE_ZONE'] %>
+#     area: <%= ENV['GCE_AREA'] %>
+#     network: <%= ENV['GCE_NETWORK'] %>
+#     username: <%= ENV['GCE_USERNAME'] %>
+#     public_key_path: <%= ENV['GCE_PUBLIC_KEY_PATH'] %>
+#     ssh_key: <%= ENV['GCE_SSH_KEY_PATH'] %>
+#   run_list:
+#   - recipe[apt]
 
 # - name: ubuntu-10.04
 #   driver_plugin: digital_ocean
 #   driver_config:
-#     size: 1gb
+#     size: 2gb
 #     image: ubuntu-10-04-x64
 #     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
@@ -114,7 +114,7 @@ platforms:
 # - name: ubuntu-12.04
 #   driver_plugin: digital_ocean
 #   driver_config:
-#     size: 1gb
+#     size: 2gb
 #     image: ubuntu-12-04-x64
 #     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
@@ -123,7 +123,7 @@ platforms:
 # - name: ubuntu-14.04
 #   driver_plugin: digital_ocean
 #   driver_config:
-#     size: 1gb
+#     size: 2gb
 #     image: ubuntu-14-04-x64
 #     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
@@ -143,19 +143,32 @@ platforms:
 #     sudo: false
 #     chef_omnibus_url: https://raw.github.com/test-kitchen/kitchen-joyent/master/scripts/install-smartos.sh
 
-- name: omnios-151006
-  driver_plugin: ec2
-  driver_config:
-    image_id: ami-35eb835c
-    flavor_id: m3.medium
-    username: root
-    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-  provisioner:
-    name: chef_zero
-  run_list:
-  - recipe[ips-omniti]
+# - name: omnios-151006
+#   driver_plugin: ec2
+#   driver_config:
+#     image_id: ami-35eb835c
+#     flavor_id: m3.medium
+#     username: root
+#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+#   provisioner:
+#     name: chef_zero
+#   run_list:
+#   - recipe[ips-omniti]
 
 suites:
+  #
+  # service50-single
+  #
+  - name: service50-single
+    run_list:
+    - recipe[mysql_service::single]
+    includes: [
+      'centos-5.8',
+    ]
+    attributes:
+      mysql:
+       version: '5.0'
+
   #
   # service51-single
   #
@@ -176,10 +189,10 @@ suites:
     run_list:
     - recipe[mysql_service::single]
     includes: [
-      'debian-7.0',
       'centos-5.8',
       'centos-6.5',
       'centos-7.0',
+      'debian-7.0',
       'omnios-151006'
     ]
     attributes:
@@ -201,6 +214,37 @@ suites:
     attributes:
       mysql:
        version: '5.6'
+
+  #
+  # service57-single
+  #
+  - name: service57-single
+    run_list:
+    - recipe[mysql_service::single]
+    includes: [
+      'centos-5.8',
+      'centos-6.5',
+      'centos-7.0',
+      'omnios-151006'
+    ]
+    attributes:
+      mysql:
+       version: '5.7'
+
+  #
+  # service50-multi
+  #
+  - name: service50-multi
+    run_list:
+    - recipe[mysql_service::multi]
+    includes: [
+      'centos-5.8',
+    ]
+    attributes:
+      mysql:
+       version: '5.0'
+       data_dir: '/data/instance-2'
+       run_user: 'bob'
 
   #
   # service51-multi
@@ -247,11 +291,28 @@ suites:
       'centos-5.8',
       'centos-6.5',
       'centos-7.0',
-      'omnios-151006'
     ]
     attributes:
       mysql:
        version: '5.6'
+       port: '3308'
+       data_dir: '/data/instance-2'
+       run_user: 'bob'
+
+  #
+  # service57-multi
+  #
+  - name: service57-multi
+    run_list:
+    - recipe[mysql_service::multi]
+    includes: [
+      'centos-5.8',
+      'centos-6.5',
+      'centos-7.0'
+    ]
+    attributes:
+      mysql:
+       version: '5.7'
        port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
