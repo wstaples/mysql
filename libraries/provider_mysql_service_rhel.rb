@@ -152,8 +152,8 @@ class Chef
         end
 
         action :start do
-          template "#{new_resource.parsed_name} :start /etc/init.d/#{local_service_name}" do
-            path "/etc/init.d/#{local_service_name}"
+          template "#{new_resource.parsed_name} :start /etc/init.d/#{mysql_name}" do
+            path "/etc/init.d/#{mysql_name}"
             source "#{mysql_version}/sysvinit/#{platform_and_version}/mysql55-mysqld.erb"
             owner 'root'
             group 'root'
@@ -174,8 +174,8 @@ class Chef
             action :create
           end
 
-          service "#{new_resource.parsed_name} :start #{local_service_name}" do
-            service_name local_service_name
+          service "#{new_resource.parsed_name} :start #{mysql_name}" do
+            service_name mysql_name
             provider Chef::Provider::Service::Init
             supports :restart => true, :status => true
             action [:start]
