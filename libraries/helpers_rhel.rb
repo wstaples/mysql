@@ -1,6 +1,7 @@
 module MysqlCookbook
   module Helpers
     module Rhel
+
       def base_dir
         case node['platform_version'].to_i
         when 5
@@ -21,13 +22,7 @@ module MysqlCookbook
       end
 
       def include_dir
-        case node['platform_version'].to_i
-        when 2014, 2013, 7, 6
-          include_dir = "#{base_dir}/etc/mysql/conf.d"
-        when 5
-          include_dir = "#{base_dir}/etc/mysql/conf.d"
-        end
-        include_dir
+        "#{etc_dir}/conf.d"
       end
 
       def lc_messages_dir
@@ -65,76 +60,25 @@ module MysqlCookbook
       def scl_name
         "mysql55"
       end
-      
+
       def local_service_name
-        "#{scl_name}-#{mysql_name}"        
+        "#{scl_name}-#{mysql_name}"
       end
-      
+
       def pid_file
-        case node['platform_version'].to_i
-        when 2014, 2013, 7, 6, 5
-          pid_file = "#{base_dir}/var/run/mysqld/mysql.pid"
-        end
-        pid_file
+        "#{run_dir}/mysql.pid"
       end
 
       def prefix_dir
-        case node['platform_version'].to_i
-        when 2014, 2013, 7, 6
-          prefix_dir =  '/usr'
-        when 5
-          case new_resource.parsed_version
-          when '5.0'
-            prefix_dir = '/usr'
-          when '5.1'
-            prefix_dir = "#{base_dir}/usr"
-          when '5.5'
-            prefix_dir = "#{base_dir}/usr"
-          end
-        end
-        prefix_dir
+        "#{base_dir}/usr"
       end
 
       def run_dir
-        case node['platform_version'].to_i
-        when 2014, 2013, 7, 6
-          run_dir = "/var/run/#{mysql_name}"
-        when 5
-          case new_resource.parsed_version
-          when '5.0'
-            run_dir = "/var/run/#{mysql_name}"
-          when '5.1'
-            run_dir = "#{base_dir}/var/run/mysqld/"
-          when '5.5'
-            run_dir = "#{base_dir}/var/run/mysqld/"
-          end
-        end
-        run_dir
-      end
-
-      def mysqld_service_name
-        case node['platform_version'].to_i
-        when 2014, 2013, 7, 6
-          service_name = 'mysqld'
-        when 5
-          case new_resource.parsed_version
-          when '5.0'
-            service_name = 'mysqld'
-          when '5.1'
-            service_name = 'mysql51-mysqld'
-          when '5.5'
-            service_name = 'mysql55-mysqld'
-          end
-        end
-        service_name
+        "#{base_dir}/var/run/#{local_service_name}"
       end
 
       def socket_file
-        case node['platform_version'].to_i
-        when 2014, 2013, 7, 6, 5
-          socket_file = "#{base_dir}/var/lib/mysql/#{local_service_name}.sock"
-        end
-        socket_file
+        "#{run_dir}/#{local_service_name}.sock"
       end
 
       def platform_and_version

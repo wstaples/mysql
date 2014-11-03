@@ -6,7 +6,6 @@ end
 
 user 'alice' do
   gid 'alice'
-  home '/data/instance-1'
   action :create
 end
 
@@ -16,7 +15,6 @@ end
 
 user 'bob' do
   gid 'bob'
-  home '/data/instance-2'
   action :create
 end
 

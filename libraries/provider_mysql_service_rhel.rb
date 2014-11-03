@@ -48,17 +48,6 @@ class Chef
             action :delete
           end
 
-          group "#{new_resource.parsed_name} :create #{new_resource.parsed_run_group}" do
-            group_name new_resource.parsed_run_group
-            action :create
-          end
-
-          user "#{new_resource.parsed_name} :create #{new_resource.parsed_run_user}" do
-            username new_resource.parsed_run_user
-            gid new_resource.parsed_run_user
-            action :create
-          end
-
           # support directories
           directory "#{new_resource.parsed_name} :create #{etc_dir}" do
             path "#{etc_dir}"
@@ -172,6 +161,7 @@ class Chef
             variables(
               :base_dir => base_dir,
               :data_dir => new_resource.parsed_data_dir,
+              :etc_dir => etc_dir,
               :local_service_name => local_service_name,
               :mysqld_safe_bin => mysqld_safe_bin,
               :pid_file => pid_file,
@@ -184,12 +174,12 @@ class Chef
             action :create
           end
 
-          # service "#{new_resource.parsed_name} :start #{mysql_name}" do
-          #   service_name mysql_name
-          #   provider Chef::Provider::Service::Init
-          #   supports :restart => true, :status => true
-          #   action [:start]
-          # end
+          service "#{new_resource.parsed_name} :start #{local_service_name}" do
+            service_name local_service_name
+            provider Chef::Provider::Service::Init
+            supports :restart => true, :status => true
+            action [:start]
+          end
         end
 
         action :stop do

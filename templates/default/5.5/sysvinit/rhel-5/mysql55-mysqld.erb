@@ -95,16 +95,8 @@ start(){
 		        action $"Starting <%= @local_service_name %>: " /bin/false
 		        return 1
 	      fi
-        echo "SEANDEBUG: --datadir: <%= @data_dir %>"
-        echo "SEANDEBUG: --socket: <%= @socket_file %>"
-        echo "SEANDEBUG: --basedir: <%= @base_dir %>"
-        echo "SEANDEBUG: --pid-file: <%= @pid_file %>"
-	      $exec \
-            --datadir="<%= @data_dir %>" \
-            --socket="<%= @socket_file %>" \
-  		      --pid-file="<%= @pid_file %>" \
-		        --basedir="<%= @base_dir %>/usr" \
-            --user="<%= @run_user %>" >/dev/null 2>&1 &
+
+	      $exec --defaults-file="<%= @etc_dir %>/my.cnf" >/dev/null 2>&1 &
 	      safe_pid=$!
 	      # Spin for a maximum of N seconds waiting for the server to come up;
 	      # exit the loop immediately if mysqld_safe process disappears.
