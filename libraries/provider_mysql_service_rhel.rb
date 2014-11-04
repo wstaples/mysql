@@ -175,6 +175,7 @@ class Chef
               :base_dir => base_dir,
               :data_dir => new_resource.parsed_data_dir,
               :etc_dir => etc_dir,
+              :error_log => error_log,
               :local_service_name => local_service_name,
               :mysqld_safe_bin => mysqld_safe_bin,
               :pid_file => pid_file,

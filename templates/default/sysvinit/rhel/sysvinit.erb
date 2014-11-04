@@ -6,8 +6,9 @@
 # chkconfig: - 64 36
 # description:	MySQL database server.
 # processname: mysqld
-# config: <%= @base_dir %>/etc/my.cnf
-# pidfile: <%= @base_dir %>/var/run/mysqld/mysqld.pid
+# config: <%= @etc_dir %>/my.cnf
+# pidfile: <%= @pid_file %>
+# socket_file: <%= @socket_file %>
 ### BEGIN INIT INFO
 # Provides: <%= @local_service_name %>
 # Required-Start: $local_fs $remote_fs $network $named $syslog $time
@@ -48,7 +49,7 @@ get_mysql_option(){
 	  fi
 }
 
-errlogfile="/var/log/<%= @local_service_name %>/error.log"
+errlogfile=<%= @error_log %>
 
 start(){
     [ -x $exec ] || exit 5
@@ -73,15 +74,15 @@ start(){
 	      ret=0
     else
     	  # prepare for start
-	      touch "$errlogfile" 2>/dev/null
+	      touch "<%= @error_log %>" 2>/dev/null
 	      if [ $? -ne 0 ]; then
 	          # failed to touch log file, probably insufficient permissions
 	          action $"Starting <%= @local_service_name %>: " /bin/false
 	          return 4
 	      fi
-	      chown <%= @run_user %>:<%= @run_user %> "$errlogfile"
-	      chmod 0640 "$errlogfile"
-	      [ -x /sbin/restorecon ] && /sbin/restorecon "$errlogfile"
+	      chown <%= @run_user %>:<%= @run_user %> "<%= @error_log %>"
+	      chmod 0640 "<%= @error_log %>"
+	      [ -x /sbin/restorecon ] && /sbin/restorecon "<%= @error_log %>"
 
 	      # Pass all the options determined above, to ensure consistent behavior.
 	      # In many cases mysqld_safe would arrive at the same conclusions anyway
@@ -95,6 +96,8 @@ start(){
 		        action $"Starting <%= @local_service_name %>: " /bin/false
 		        return 1
 	      fi
+
+	      # echo "SEANDEBUG: $exec --defaults-file=\"<%= @etc_dir %>/my.cnf\""
 
 	      $exec --defaults-file="<%= @etc_dir %>/my.cnf" >/dev/null 2>&1 &
 	      safe_pid=$!

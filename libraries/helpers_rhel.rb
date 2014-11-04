@@ -1,13 +1,12 @@
 module MysqlCookbook
   module Helpers
     module Rhel
-
       def scl_package?
         if node['platform_version'].to_i == 5
           return true if new_resource.parsed_version == '5.1'
           return true if new_resource.parsed_version == '5.5'
         end
-        return false
+        false
       end
 
       def scl_name
@@ -15,7 +14,7 @@ module MysqlCookbook
           return 'mysql51' if new_resource.parsed_version == '5.1'
           return 'mysql55' if new_resource.parsed_version == '5.5'
         end
-        return nil
+        nil
       end
 
       def initialize_cmd
@@ -27,16 +26,17 @@ module MysqlCookbook
       end
 
       def sysvinit_template
-        if scl_package?
-          "#{mysql_version}/sysvinit/#{platform_and_version}/scl-sysvinit.erb"
-        else
-          "#{mysql_version}/sysvinit/#{platform_and_version}/sysvinit.erb"
-        end
+        return 'sysvinit/rhel/scl-sysvinit.erb' if scl_package?
+        'sysvinit/rhel/sysvinit.erb'
       end
 
       def base_dir
         return "/opt/rh/#{scl_name}/root" if scl_package?
-        return nil
+        nil
+      end
+
+      def error_log
+        "/var/log/#{local_service_name}/error.log"
       end
 
       def etc_dir
@@ -73,7 +73,7 @@ module MysqlCookbook
 
       def local_service_name
         return mysql_name if scl_name.nil?
-        return "#{scl_name}-#{mysql_name}"
+        "#{scl_name}-#{mysql_name}"
       end
 
       def pid_file

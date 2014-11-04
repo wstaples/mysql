@@ -6,10 +6,11 @@
 # chkconfig: - 64 36
 # description:	MySQL database server.
 # processname: mysqld
-# config: <%= @base_dir %>/etc/my.cnf
-# pidfile: <%= @base_dir %>/var/run/mysqld/mysqld.pid
+# config: <%= @etc_dir %>/my.cnf
+# pidfile: <%= @pid_file %>
+# socket_file: <%= @socket_file %>
 ### BEGIN INIT INFO
-# Provides: <%= @local_service_name %>
+# Provides: <%= @mysql_name %>
 # Required-Start: $local_fs $remote_fs $network $named $syslog $time
 # Required-Stop: $local_fs $remote_fs $network $named $syslog $time
 # Short-Description: start and stop MySQL server
@@ -48,7 +49,7 @@ get_mysql_option(){
 	  fi
 }
 
-errlogfile="/var/log/<%= @local_service_name %>/error.log"
+errlogfile=<%= @error_log %>
 
 start(){
     [ -x $exec ] || exit 5
@@ -73,15 +74,15 @@ start(){
 	      ret=0
     else
     	  # prepare for start
-	      touch "$errlogfile" 2>/dev/null
+	      touch <%= @error_log %>" 2>/dev/null
 	      if [ $? -ne 0 ]; then
 	          # failed to touch log file, probably insufficient permissions
 	          action $"Starting <%= @local_service_name %>: " /bin/false
 	          return 4
 	      fi
-	      chown <%= @run_user %>:<%= @run_user %> "$errlogfile"
-	      chmod 0640 "$errlogfile"
-	      [ -x /sbin/restorecon ] && /sbin/restorecon "$errlogfile"
+	      chown <%= @run_user %>:<%= @run_user %> <%= @error_log %>"
+	      chmod 0640 <%= @error_log %>"
+	      [ -x /sbin/restorecon ] && /sbin/restorecon <%= @error_log %>"
 
 	      # Pass all the options determined above, to ensure consistent behavior.
 	      # In many cases mysqld_safe would arrive at the same conclusions anyway
@@ -95,6 +96,8 @@ start(){
 		        action $"Starting <%= @local_service_name %>: " /bin/false
 		        return 1
 	      fi
+
+	      # echo "SEANDEBUG: $exec --defaults-file=\"<%= @etc_dir %>/my.cnf\""
 
 	      $exec --defaults-file="<%= @etc_dir %>/my.cnf" >/dev/null 2>&1 &
 	      safe_pid=$!
@@ -189,6 +192,19 @@ restart(){
 condrestart(){
     [ -e $lockfile ] && restart || :
 }
+
+# We have to re-enable SCL environment, because /sbin/service
+# clears almost all environment variables.
+# Since X_SCLS is cleared as well, we lose information about other
+# collections enabled.
+. /opt/rh/<%= @scl_name %>/enable
+export X_SCLS="$X_SCLS <%= @scl_name %>"
+
+# we want start daemon only inside "scl enable" invocation
+if ! scl_enabled <%= @scl_name %> ; then
+    echo "Collection <%= @scl_name %> has to be listed in /opt/rh/<%= @scl_name %>/service-environment"
+    exit 1
+fi
 
 # See how we were called.
 case "$1" in
