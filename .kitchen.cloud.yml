@@ -38,20 +38,11 @@ platforms:
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
 #     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-- name: centos-7.0
-  driver_plugin: digital_ocean
-  driver_config:
-    size: 2gb
-    image: centos-7-0-x64
-    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
-
-# - name: fedora-20
+# - name: centos-7.0
 #   driver_plugin: digital_ocean
 #   driver_config:
 #     size: 2gb
-#     image: fedora-20-x64
+#     image: centos-7-0-x64
 #     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
 #     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
@@ -63,12 +54,19 @@ platforms:
 #     username: ec2-user
 #     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
 
-# - name: amazon-2014.03
-#   driver_plugin: ec2
-#   driver_config:
-#     image_id: ami-6b726502
-#     username: ec2-user
-#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+- name: amazon-2014.03
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-6b726502
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+
+- name: amazon-2014.09
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-9a6ed3f2
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
 
 # - name: redhat-6.5
 #   driver_plugin: ec2
@@ -81,6 +79,15 @@ platforms:
 #   attributes:
 #     selinux:
 #       state: disabled
+
+# - name: fedora-20
+#   driver_plugin: digital_ocean
+#   driver_config:
+#     size: 2gb
+#     image: fedora-20-x64
+#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
 # - name: suse-11.3
 #   driver_plugin: ec2
@@ -163,7 +170,7 @@ suites:
     run_list:
     - recipe[mysql_service::single]
     includes: [
-      'centos-5.8',
+      'centos-5.8'
     ]
     attributes:
       mysql:
@@ -176,7 +183,7 @@ suites:
     run_list:
     - recipe[mysql_service::single]
     includes: [
-      'centos-5.8',
+      'centos-5.8'
     ]
     attributes:
       mysql:
@@ -192,6 +199,9 @@ suites:
       'centos-5.8',
       'centos-6.5',
       'centos-7.0',
+      'amazon-2013.09',
+      'amazon-2014.03',
+      'amazon-2014.09',
       'debian-7.0',
       'omnios-151006'
     ]
@@ -209,6 +219,9 @@ suites:
       'centos-5.8',
       'centos-6.5',
       'centos-7.0',
+      'amazon-2013.09',
+      'amazon-2014.03',
+      'amazon-2014.09',
       'omnios-151006'
     ]
     attributes:
@@ -225,6 +238,9 @@ suites:
       'centos-5.8',
       'centos-6.5',
       'centos-7.0',
+      'amazon-2013.09',
+      'amazon-2014.03',
+      'amazon-2014.09',
       'omnios-151006'
     ]
     attributes:
@@ -238,7 +254,7 @@ suites:
     run_list:
     - recipe[mysql_service::multi]
     includes: [
-      'centos-5.8',
+      'centos-5.8'
     ]
     attributes:
       mysql:
@@ -272,6 +288,9 @@ suites:
       'centos-5.8',
       'centos-6.5',
       'centos-7.0',
+      'amazon-2013.09',
+      'amazon-2014.03',
+      'amazon-2014.09',
       'omnios-151006'
     ]
     attributes:
@@ -291,6 +310,9 @@ suites:
       'centos-5.8',
       'centos-6.5',
       'centos-7.0',
+      'amazon-2013.09',
+      'amazon-2014.03',
+      'amazon-2014.09'
     ]
     attributes:
       mysql:
@@ -308,7 +330,10 @@ suites:
     includes: [
       'centos-5.8',
       'centos-6.5',
-      'centos-7.0'
+      'centos-7.0',
+      'amazon-2013.09',
+      'amazon-2014.03',
+      'amazon-2014.09'
     ]
     attributes:
       mysql:
