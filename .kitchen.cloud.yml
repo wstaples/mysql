@@ -29,23 +29,23 @@ platforms:
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
 #     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-- name: centos-6.5
-  driver_plugin: digital_ocean
-  driver_config:
-    size: 2gb
-    image: centos-6-5-x64
-    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
-
-# - name: centos-7.0
+# - name: centos-6.5
 #   driver_plugin: digital_ocean
 #   driver_config:
 #     size: 2gb
-#     image: centos-7-0-x64
+#     image: centos-6-5-x64
 #     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
 #     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+
+- name: centos-7.0
+  driver_plugin: digital_ocean
+  driver_config:
+    size: 2gb
+    image: centos-7-0-x64
+    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
 # - name: fedora-20
 #   driver_plugin: digital_ocean
