@@ -43,8 +43,8 @@ DROP DATABASE IF EXISTS test ;
 EOSQL
 
        #{mysqld_safe_bin} \
-         --init-file=/tmp/mysql-first-time.sql \
-         --defaults-file=#{etc_dir}/my.cnf &
+       --defaults-file=#{etc_dir}/my.cnf \
+       --init-file=/tmp/mysql-first-time.sql &
 
        while [ ! -f #{pid_file} ] ; do sleep 1 ; done
        PID=`cat #{pid_file}`

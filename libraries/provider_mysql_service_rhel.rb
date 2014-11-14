@@ -136,7 +136,7 @@ class Chef
             cwd new_resource.parsed_data_dir
             code mysql_install_db_script
             not_if "/usr/bin/test -f #{new_resource.parsed_data_dir}/mysql/user.frm"
-            # notifies :run, "bash[#{new_resource.parsed_name} :create initial records]"
+            notifies :run, "bash[#{new_resource.parsed_name} :create initial records]"
             action :run
           end
 
