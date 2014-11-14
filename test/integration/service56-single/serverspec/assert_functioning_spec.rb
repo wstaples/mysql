@@ -2,17 +2,23 @@ require 'serverspec'
 
 set :backend, :exec
 
-if os[:family] =~ /solaris/
-  cmd = '/opt/mysql56/bin/mysql'
-else
-  cmd = '/usr/bin/mysql'
+def mysql_bin  
+  return '/opt/mysql56/bin/mysql' if os[:family] =~ /solaris/
+  return '/usr/bin/mysql'
 end
 
-cmd << ' -h 127.0.0.1'
-cmd << ' -P 3306'
-cmd << ' -u root'
-cmd << " -e \"SELECT Host,User,Password FROM mysql.user WHERE User='root' AND 'Host'='%'; \""
+def mysql_cmd
+  <<-EOF
+  #{mysql_bin} \
+  -h 127.0.0.1 \
+  -P 3306 \
+  -u root \
+  -e "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='%';" \
+  --skip-column-names
+  EOF
+end
 
-describe command(cmd) do
+describe command(mysql_cmd) do
   its(:exit_status) { should eq 0 }
+  its(:stdout) { should match /| % | root |  |/ }
 end
