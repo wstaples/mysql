@@ -2,9 +2,9 @@ require 'serverspec'
 
 set :backend, :exec
 
-def mysql_bin  
+def mysql_bin
   return '/opt/mysql57/bin/mysql' if os[:family] =~ /solaris/
-  return '/usr/bin/mysql'
+  '/usr/bin/mysql'
 end
 
 def mysql_cmd

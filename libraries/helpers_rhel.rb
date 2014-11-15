@@ -31,10 +31,18 @@ module MysqlCookbook
         end
       end
 
+      def mysql_safe_init_cmd
+        if scl_package?
+          "scl enable #{scl_name} \"#{mysqld_safe_bin} --defaults-file=#{etc_dir}/my.cnf --init-file=/tmp/mein.sql &\""
+        else
+          "#{mysqld_safe_bin} --defaults-file=#{etc_dir}/my.cnf --init-file=/tmp/mein.sql &"
+        end
+      end
+
       def init_records_script
         <<-EOS
         set -e
-        cat > /tmp/mysql-first-time.sql <<-EOSQL
+        cat > /tmp/mein.sql <<-EOSQL
 DELETE FROM mysql.user ;
 CREATE USER 'root'@'%' IDENTIFIED BY 'ilikerandompasswords' ;
 GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION ;
@@ -42,16 +50,14 @@ FLUSH PRIVILEGES;
 DROP DATABASE IF EXISTS test ;
 EOSQL
 
-       #{mysqld_safe_bin} \
-       --defaults-file=#{etc_dir}/my.cnf \
-       --init-file=/tmp/mysql-first-time.sql &
+       #{mysql_safe_init_cmd}
 
        while [ ! -f #{pid_file} ] ; do sleep 1 ; done
        PID=`cat #{pid_file}`
-       kill $PID ; sleep 1
+       kill $PID ; sleep 2
        EOS
       end
-      
+
       def local_service_name
         return mysql_name if scl_name.nil?
         "#{scl_name}-#{mysql_name}"
@@ -91,6 +97,7 @@ EOSQL
           "rhel-#{node['platform_version'].to_i}"
         end
       end
+
       def prefix_dir
         "#{base_dir}/usr"
       end
@@ -98,7 +105,7 @@ EOSQL
       def run_dir
         "#{base_dir}/var/run/#{local_service_name}"
       end
-      
+
       def scl_name
         if node['platform_version'].to_i == 5
           return 'mysql51' if new_resource.parsed_version == '5.1'
@@ -118,12 +125,11 @@ EOSQL
       def socket_file
         "#{run_dir}/#{local_service_name}.sock"
       end
-      
+
       def sysvinit_template
         return 'sysvinit/rhel/scl-sysvinit.erb' if scl_package?
-        return 'sysvinit/rhel/sysvinit.erb'
+        'sysvinit/rhel/sysvinit.erb'
       end
-      
     end
   end
 end

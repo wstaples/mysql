@@ -130,7 +130,7 @@ module Opscode
               },
               '5.7' => {
                 'package_name' => 'mysql-community-server'
-              }              
+              }
             }
           },
           'fedora' => {
