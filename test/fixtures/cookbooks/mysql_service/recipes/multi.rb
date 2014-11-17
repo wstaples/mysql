@@ -37,17 +37,18 @@ mysql_service 'instance-2' do
   port node['mysql']['port']
   data_dir node['mysql']['data_dir']
   run_user node['mysql']['run_user']
+  initial_root_password node['mysql']['initial_root_password']
   action [:create, :start]
 end
 
-# log 'notify restart' do
-#   level :info
-#   action :write
-#   notifies :restart, 'mysql_service[instance-1]'
-# end
+log 'notify restart' do
+  level :info
+  action :write
+  notifies :restart, 'mysql_service[instance-1]'
+end
 
-# log 'notify reload' do
-#   level :info
-#   action :write
-#   notifies :reload, 'mysql_service[instance-2]'
-# end
+log 'notify reload' do
+  level :info
+  action :write
+  notifies :reload, 'mysql_service[instance-2]'
+end

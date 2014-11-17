@@ -260,8 +260,10 @@ suites:
     attributes:
       mysql:
        version: '5.0'
+       port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
+       initial_root_password: 'string with spaces'
 
   #
   # service51-multi
@@ -275,8 +277,10 @@ suites:
     attributes:
       mysql:
        version: '5.1'
+       port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
+       initial_root_password: 'string with spaces'
 
   #
   # service55-multi
@@ -300,6 +304,7 @@ suites:
        port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
+       initial_root_password: 'string with spaces'
 
   #
   # service56-multi
@@ -321,6 +326,7 @@ suites:
        port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
+       initial_root_password: 'string with spaces'
 
   #
   # service57-multi
@@ -342,13 +348,14 @@ suites:
        port: '3308'
        data_dir: '/data/instance-2'
        run_user: 'bob'
+       initial_root_password: 'string with spaces'
 
   #
   # config
   #
-  - name: config
-    run_list:
-    - recipe[mysql_config]
+  # - name: config
+  #   run_list:
+  #   - recipe[mysql_config]
 
   #
   # replication-test

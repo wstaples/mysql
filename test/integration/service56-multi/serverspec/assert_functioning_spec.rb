@@ -2,28 +2,41 @@ require 'serverspec'
 
 set :backend, :exec
 
-if os[:family] =~ /solaris/
-  cmd = '/opt/mysql56/bin/mysql'
-else
-  cmd = '/usr/bin/mysql'
+def mysql_bin
+  return '/opt/mysql51/bin/mysql' if os[:family] =~ /solaris/
+  '/usr/bin/mysql'
 end
 
-instance_1_cmd = cmd
-instance_1_cmd << ' -h 127.0.0.1'
-instance_1_cmd << ' -P 3307'
-instance_1_cmd << ' -u root'
-instance_1_cmd << " -e \"SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='%'; \""
+def instance_1_cmd
+  <<-EOF
+  #{mysql_bin} \
+  -h 127.0.0.1 \
+  -P 3307 \
+  -u root \
+  -pilikerandompasswords \
+  -e "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='%';" \
+  --skip-column-names
+  EOF
+end
+
+def instance_2_cmd
+  <<-EOF
+  #{mysql_bin} \
+  -h 127.0.0.1 \
+  -P 3308 \
+  -u root \
+  -pstring\\ with\\ spaces \
+  -e "SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='%';" \
+  --skip-column-names
+  EOF
+end
 
 describe command(instance_1_cmd) do
   its(:exit_status) { should eq 0 }
+  its(:stdout) { should match /| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/ }
 end
-
-instance_2_cmd = cmd
-instance_2_cmd << ' -h 127.0.0.1'
-instance_2_cmd << ' -P 3308'
-instance_2_cmd << ' -u root'
-instance_2_cmd << " -e \"SELECT Host,User,Password FROM mysql.user WHERE User='root' AND Host='%%'; \""
 
 describe command(instance_2_cmd) do
   its(:exit_status) { should eq 0 }
+  its(:stdout) { should match /| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/ }
 end

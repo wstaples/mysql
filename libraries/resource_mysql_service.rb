@@ -9,13 +9,12 @@ class Chef
       default_action :create
 
       attribute :data_dir, :kind_of => String, :default => nil
-      attribute :debian_password, :kind_of => String, :default => 'gnuslashlinux4ev4r'
+      attribute :initial_root_password, :kind_of => String, :default => 'ilikerandompasswords'
       attribute :instance, :kind_of => String, :name_attribute => true
       attribute :package_action, :kind_of => String, :default => nil
       attribute :package_name, :kind_of => String, :default => nil
       attribute :package_version, :kind_of => String, :default => nil
       attribute :port, :kind_of => String, :default => '3306'
-      attribute :root_password, :kind_of => String, :default => 'ilikerandompasswords'
       attribute :run_group, :kind_of => String, :default => 'mysql'
       attribute :run_user, :kind_of => String, :default => 'mysql'
       attribute :version, :kind_of => String, :default => nil
@@ -40,6 +39,10 @@ class Chef
       data_dir
     end
 
+    def parsed_initial_root_password
+      return initial_root_password if initial_root_password
+    end
+    
     def parsed_instance
       return instance if instance
     end

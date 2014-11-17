@@ -33,18 +33,20 @@ module MysqlCookbook
 
       def mysql_safe_init_cmd
         if scl_package?
-          "scl enable #{scl_name} \"#{mysqld_safe_bin} --defaults-file=#{etc_dir}/my.cnf --init-file=/tmp/mein.sql &\""
+          "scl enable #{scl_name} \"#{mysqld_safe_bin} --defaults-file=#{etc_dir}/my.cnf --init-file=/tmp/#{mysql_name}/my.sql &\""
         else
-          "#{mysqld_safe_bin} --defaults-file=#{etc_dir}/my.cnf --init-file=/tmp/mein.sql &"
+          "#{mysqld_safe_bin} --defaults-file=#{etc_dir}/my.cnf --init-file=/tmp/#{mysql_name}/my.sql &"
         end
       end
 
       def init_records_script
         <<-EOS
         set -e
-        cat > /tmp/mein.sql <<-EOSQL
+        rm -rf /tmp/#{mysql_name}
+        mkdir /tmp/#{mysql_name}
+        cat > /tmp/#{mysql_name}/my.sql <<-EOSQL
 DELETE FROM mysql.user ;
-CREATE USER 'root'@'%' IDENTIFIED BY 'ilikerandompasswords' ;
+CREATE USER 'root'@'%' IDENTIFIED BY '#{new_resource.parsed_initial_root_password}' ;
 GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION ;
 FLUSH PRIVILEGES;
 DROP DATABASE IF EXISTS test ;
@@ -54,6 +56,7 @@ EOSQL
        while [ ! -f #{pid_file} ] ; do sleep 1 ; done
        kill `cat #{pid_file}`
        while [ -f #{pid_file} ] ; do sleep 1 ; done
+       rm -rf /tmp/#{mysql_name}
        EOS
       end
 
