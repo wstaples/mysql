@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# <%= @local_service_name %>	This shell script takes care of starting and stopping
+# <%= @mysql_name %>	This shell script takes care of starting and stopping
 #                       the MySQL subsystem (mysqld).
 #
 # chkconfig: - 64 36
@@ -10,7 +10,7 @@
 # pidfile: <%= @pid_file %>
 # socket_file: <%= @socket_file %>
 ### BEGIN INIT INFO
-# Provides: <%= @local_service_name %>
+# Provides: <%= @mysql_name %>
 # Required-Start: $local_fs $remote_fs $network $named $syslog $time
 # Required-Stop: $local_fs $remote_fs $network $named $syslog $time
 # Short-Description: start and stop MySQL server
@@ -25,15 +25,15 @@
 
 
 exec="<%= @base_dir %>/usr/bin/mysqld_safe"
-prog="<%= @local_service_name %>"
+prog="<%= @mysql_name %>"
 
 # Set timeouts here so they can be overridden from <%= @base_dir %>/etc/sysconfig/mysqld
 STARTTIMEOUT=120
 STOPTIMEOUT=60
 
-[ -e <%= @base_dir %>/etc/sysconfig/<%= @local_service_name %> ] && . <%= @base_dir %>/etc/sysconfig/<%= @local_service_name %>
+[ -e <%= @base_dir %>/etc/sysconfig/<%= @mysql_name %> ] && . <%= @base_dir %>/etc/sysconfig/<%= @mysql_name %>
 
-lockfile=/var/lock/subsys/<%= @local_service_name %>
+lockfile=/var/lock/subsys/<%= @mysql_name %>
 
 
 # extract value of a MySQL option from config files
@@ -65,19 +65,19 @@ start(){
 
     if [ $MYSQLDRUNNING = 1 ] && [ $? = 0 ]; then
 	      # already running, do nothing
-	      action $"Starting <%= @local_service_name %>: " /bin/true
+	      action $"Starting <%= @mysql_name %>: " /bin/true
 	      ret=0
     elif [ $MYSQLDRUNNING = 1 ] && echo "$RESPONSE" | grep -q "Access denied for user"
     then
 	      # already running, do nothing
-	      action $"Starting <%= @local_service_name %>: " /bin/true
+	      action $"Starting <%= @mysql_name %>: " /bin/true
 	      ret=0
     else
     	  # prepare for start
 	      touch "<%= @error_log %>" 2>/dev/null
 	      if [ $? -ne 0 ]; then
 	          # failed to touch log file, probably insufficient permissions
-	          action $"Starting <%= @local_service_name %>: " /bin/false
+	          action $"Starting <%= @mysql_name %>: " /bin/false
 	          return 4
 	      fi
 	      chown <%= @run_user %>:<%= @run_user %> "<%= @error_log %>"
@@ -93,7 +93,7 @@ start(){
 	      # alarms, per bug #547485
 	      if [ -S "<%= @socket_file %>" ] ; then
 		        echo "Another MySQL daemon already running with the same unix socket."
-		        action $"Starting <%= @local_service_name %>: " /bin/false
+		        action $"Starting <%= @mysql_name %>: " /bin/false
 		        return 1
 	      fi
 
@@ -135,11 +135,11 @@ start(){
 	          ret=1
 	      fi
 	      if [ $ret -eq 0 ]; then
-	          action $"Starting <%= @local_service_name %>: " /bin/true
+	          action $"Starting <%= @mysql_name %>: " /bin/true
 	          chmod o+r <%= @pid_file %> >/dev/null 2>&1
 	          touch $lockfile
 	      else
-	          action $"Starting <%= @local_service_name %>: " /bin/false
+	          action $"Starting <%= @mysql_name %>: " /bin/false
 	      fi
     fi
     return $ret
@@ -148,7 +148,7 @@ start(){
 stop(){
 	  if [ ! -f "<%= @pid_file %>" ]; then
 	      # not running; per LSB standards this is "ok"
-	      action $"Stopping <%= @local_service_name %>: " /bin/true
+	      action $"Stopping <%= @mysql_name %>: " /bin/true
 	      return 0
 	  fi
 	  MYSQLPID=`cat "<%= @pid_file %>" 2>/dev/null`
@@ -165,20 +165,20 @@ stop(){
 		        if [ $TIMEOUT -eq 0 ]; then
 		            echo "Timeout error occurred trying to stop MySQL Daemon."
 		            ret=1
-		            action $"Stopping <%= @local_service_name %>: " /bin/false
+		            action $"Stopping <%= @mysql_name %>: " /bin/false
 		        else
 		            rm -f $lockfile
 		            rm -f "<%= @socket_file %>"
-		            action $"Stopping <%= @local_service_name %>: " /bin/true
+		            action $"Stopping <%= @mysql_name %>: " /bin/true
 		        fi
 	      else
 		        # kill command failed, probably insufficient permissions
-		        action $"Stopping <%= @local_service_name %>: " /bin/false
+		        action $"Stopping <%= @mysql_name %>: " /bin/false
 		        ret=4
 	      fi
 	  else
 	      # failed to read pidfile, probably insufficient permissions
-	      action $"Stopping <%= @local_service_name %>: " /bin/false
+	      action $"Stopping <%= @mysql_name %>: " /bin/false
 	      ret=4
 	  fi
 	  return $ret
@@ -202,7 +202,7 @@ case "$1" in
         stop
         ;;
     status)
-        status -p <%= @pid_file %> <%= @local_service_name %>
+        status -p <%= @pid_file %> <%= @mysql_name %>
         ;;
     restart)
         restart

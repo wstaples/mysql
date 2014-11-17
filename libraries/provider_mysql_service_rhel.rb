@@ -103,8 +103,8 @@ class Chef
             action :create
           end
 
-          directory "#{new_resource.parsed_name} :create #{base_dir}/var/log/#{local_service_name}" do
-            path "#{base_dir}/var/log/#{local_service_name}"
+          directory "#{new_resource.parsed_name} :create #{base_dir}/var/log/#{mysql_name}" do
+            path "#{base_dir}/var/log/#{mysql_name}"
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
             mode '0750'
@@ -162,7 +162,7 @@ class Chef
               :data_dir => new_resource.parsed_data_dir,
               :etc_dir => etc_dir,
               :error_log => error_log,
-              :local_service_name => local_service_name,
+              :mysql_name => mysql_name,
               :mysqld_safe_bin => mysqld_safe_bin,
               :pid_file => pid_file,
               :port => new_resource.parsed_port,

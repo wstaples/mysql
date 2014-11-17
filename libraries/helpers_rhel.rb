@@ -7,7 +7,7 @@ module MysqlCookbook
       end
 
       def error_log
-        "/var/log/#{local_service_name}/error.log"
+        "#{base_dir}/var/log/#{mysql_name}/error.log"
       end
 
       def etc_dir
@@ -22,11 +22,11 @@ module MysqlCookbook
         if scl_package?
           <<-EOF
           scl enable #{scl_name} \
-          "#{mysql_install_db} --datadir=#{new_resource.parsed_data_dir} --defaults-file=#{etc_dir}/my.cnf"
+          "mysql_install_db --datadir=#{new_resource.parsed_data_dir} --defaults-file=#{etc_dir}/my.cnf"
           EOF
         else
           <<-EOF
-          #{mysql_install_db} --datadir=#{new_resource.parsed_data_dir} --defaults-file=#{etc_dir}/my.cnf
+          mysql_install_db --datadir=#{new_resource.parsed_data_dir} --defaults-file=#{etc_dir}/my.cnf
           EOF
         end
       end
@@ -51,24 +51,14 @@ DROP DATABASE IF EXISTS test ;
 EOSQL
 
        #{mysql_safe_init_cmd}
-
        while [ ! -f #{pid_file} ] ; do sleep 1 ; done
-       PID=`cat #{pid_file}`
-       kill $PID ; sleep 2
+       kill `cat #{pid_file}`
+       while [ -f #{pid_file} ] ; do sleep 1 ; done
        EOS
-      end
-
-      def local_service_name
-        return mysql_name if scl_name.nil?
-        "#{scl_name}-#{mysql_name}"
       end
 
       def mysql_bin
         "#{base_dir}/usr/bin/mysql"
-      end
-
-      def mysql_install_db
-        'mysql_install_db'
       end
 
       def mysql_name
@@ -103,7 +93,7 @@ EOSQL
       end
 
       def run_dir
-        "#{base_dir}/var/run/#{local_service_name}"
+        "#{base_dir}/var/run/#{mysql_name}"
       end
 
       def scl_name
@@ -123,7 +113,7 @@ EOSQL
       end
 
       def socket_file
-        "#{run_dir}/#{local_service_name}.sock"
+        "#{run_dir}/#{mysql_name}.sock"
       end
 
       def sysvinit_template
