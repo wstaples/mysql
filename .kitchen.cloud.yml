@@ -21,14 +21,14 @@ provisioner:
   require_chef_omnibus: latest
 
 platforms:
-- name: centos-5.8
-  driver_plugin: digital_ocean
-  driver_config:
-    size: 2gb
-    image: centos-5-8-x64
-    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+# - name: centos-5.8
+#   driver_plugin: digital_ocean
+#   driver_config:
+#     size: 2gb
+#     image: centos-5-8-x64
+#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
 # - name: centos-6.5
 #   driver_plugin: digital_ocean
@@ -48,20 +48,6 @@ platforms:
 #     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
 #     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-# - name: amazon-2013.09
-#   driver_plugin: ec2
-#   driver_config:
-#     image_id: ami-3be4bc52
-#     username: ec2-user
-#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-
-# - name: amazon-2014.03
-#   driver_plugin: ec2
-#   driver_config:
-#     image_id: ami-6b726502
-#     username: ec2-user
-#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-
 # - name: amazon-2014.09
 #   driver_plugin: ec2
 #   driver_config:
@@ -69,17 +55,12 @@ platforms:
 #     username: ec2-user
 #     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
 
-# - name: redhat-6.5
-#   driver_plugin: ec2
-#   driver_config:
-#     image_id: ami-8d756fe4
-#     username: ec2-user
-#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-#   run_list:
-#   - recipe[selinux]
-#   attributes:
-#     selinux:
-#       state: disabled
+- name: redhat-6.5
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-8d756fe4
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
 
 # - name: fedora-20
 #   driver_plugin: digital_ocean
@@ -199,6 +180,7 @@ suites:
     includes: [
       'centos-5.8',
       'centos-6.5',
+      'redhat-6.5',
       'centos-7.0',
       'amazon-2013.09',
       'amazon-2014.03',
@@ -219,6 +201,7 @@ suites:
     includes: [
       'centos-5.8',
       'centos-6.5',
+      'redhat-6.5',
       'centos-7.0',
       'amazon-2013.09',
       'amazon-2014.03',
@@ -238,6 +221,7 @@ suites:
     includes: [
       'centos-5.8',
       'centos-6.5',
+      'redhat-6.5',
       'centos-7.0',
       'amazon-2013.09',
       'amazon-2014.03',
@@ -292,6 +276,7 @@ suites:
       'debian-7.0',
       'centos-5.8',
       'centos-6.5',
+      'redhat-6.5',
       'centos-7.0',
       'amazon-2013.09',
       'amazon-2014.03',
@@ -315,6 +300,7 @@ suites:
     includes: [
       'centos-5.8',
       'centos-6.5',
+      'redhat-6.5',
       'centos-7.0',
       'amazon-2013.09',
       'amazon-2014.03',
