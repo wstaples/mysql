@@ -116,7 +116,7 @@ EOSQL
       end
 
       def socket_file
-        "#{run_dir}/#{mysql_name}.sock"
+        "#{run_dir}/mysqld.sock"
       end
 
       def sysvinit_template
