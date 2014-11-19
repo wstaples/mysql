@@ -38,5 +38,5 @@ end
 
 describe command(instance_2_cmd) do
   its(:exit_status) { should eq 0 }
-  its(:stdout) { should match(/| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/) }
+  its(:stdout) { should match(/| % | root | *9569840FB7E1D2D0E3BEA14B2ABAC240A9F13DEE |/) }
 end
