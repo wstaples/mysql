@@ -21,48 +21,48 @@ provisioner:
   # require_chef_omnibus: latest
 
 platforms:
-# - name: centos-5.8
-#   driver_plugin: digital_ocean
-#   driver_config:
-#     size: 2gb
-#     image: centos-5-8-x64
-#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+- name: centos-5.8
+  driver_plugin: digital_ocean
+  driver_config:
+    size: 2gb
+    image: centos-5-8-x64
+    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-# - name: centos-6.5
-#   driver_plugin: digital_ocean
-#   driver_config:
-#     size: 2gb
-#     image: centos-6-5-x64
-#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+- name: centos-6.5
+  driver_plugin: digital_ocean
+  driver_config:
+    size: 2gb
+    image: centos-6-5-x64
+    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-# - name: centos-7.0
-#   driver_plugin: digital_ocean
-#   driver_config:
-#     size: 2gb
-#     image: centos-7-0-x64
-#     region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
-#     ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
-#     ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
+- name: centos-7.0
+  driver_plugin: digital_ocean
+  driver_config:
+    size: 2gb
+    image: centos-7-0-x64
+    region: <%= ENV['DIGITAL_OCEAN_REGION'] %>
+    ssh_key_ids: <%= ENV['DIGITAL_OCEAN_SSH_KEY_IDS'] %>
+    ssh_key: <%= ENV['DIGITAL_OCEAN_SSH_KEY_PATH'] %>
 
-# - name: amazon-2014.09
-#   driver_plugin: ec2
-#   driver_config:
-#     image_id: ami-9a6ed3f2
-#     username: ec2-user
-#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+- name: amazon-2014.09
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-9a6ed3f2
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
 
-# - name: redhat-6.5
-#   driver_plugin: ec2
-#   driver_config:
-#     image_id: ami-8d756fe4
-#     username: ec2-user
-#     ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
-#   run_list:
-#   - recipe[selinux::disabled]
+- name: redhat-6.5
+  driver_plugin: ec2
+  driver_config:
+    image_id: ami-8d756fe4
+    username: ec2-user
+    ssh_key: <%= ENV['EC2_SSH_KEY_PATH'] %>
+  run_list:
+  - recipe[selinux::disabled]
 
 - name: fedora-20
   driver_plugin: digital_ocean

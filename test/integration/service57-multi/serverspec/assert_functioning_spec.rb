@@ -33,10 +33,10 @@ end
 
 describe command(instance_1_cmd) do
   its(:exit_status) { should eq 0 }
-  its(:stdout) { should match /| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/ }
+  its(:stdout) { should match(/| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/) }
 end
 
 describe command(instance_2_cmd) do
   its(:exit_status) { should eq 0 }
-  its(:stdout) { should match /| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/ }
+  its(:stdout) { should match(/| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/) }
 end

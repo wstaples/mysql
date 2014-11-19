@@ -26,7 +26,7 @@ class Chef
               run_context.include_recipe 'yum-mysql-community::mysql57'
             end
           end
-          
+
           # Software installation
           package "#{new_resource.parsed_name} :create #{new_resource.parsed_package_name}" do
             package_name new_resource.parsed_package_name
@@ -129,18 +129,18 @@ class Chef
         action :start do
           template "#{new_resource.parsed_name} :start /usr/libexec/#{mysql_name}-wait-ready" do
             path "/usr/libexec/#{mysql_name}-wait-ready"
-            source 'systemd/mysqld-wait-ready.erb'            
+            source 'systemd/mysqld-wait-ready.erb'
             owner 'root'
             group 'root'
             mode '0755'
             variables(
               :socket_file => socket_file,
               :data_dir => new_resource.parsed_data_dir
-              )            
+              )
             cookbook 'mysql'
             action :create
           end
-          
+
           template "#{new_resource.parsed_name} :start /usr/lib/systemd/system#{mysql_name}.service" do
             path "/usr/lib/systemd/system/#{mysql_name}.service"
             source 'systemd/mysqld.service.erb'
@@ -168,7 +168,7 @@ class Chef
 
         action :delete do
         end
-        
+
         action :restart do
         end
 

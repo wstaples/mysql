@@ -21,5 +21,5 @@ end
 
 describe command(mysql_cmd) do
   its(:exit_status) { should eq 0 }
-  its(:stdout) { should match /| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/ }
+  its(:stdout) { should match(/| % | root | *4C45527A2EBB585B4F5BAC0C29F4A20FB268C591 |/) }
 end
