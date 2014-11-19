@@ -1,0 +1,16 @@
+require 'spec_helper'
+
+describe 'mysql_service::single on centos-5.8' do
+  let(:mysql_service_single_55_centos_5_8) do
+    ChefSpec::Runner.new(
+      :platform => 'centos',
+      :version => '5.8'
+      ).converge('mysql_service::single')
+  end
+
+  context 'compiling the recipe' do
+    it 'creates mysql_service[default]' do
+      expect(mysql_service_single_55_centos_5_8).to create_mysql_service('default')
+    end
+  end
+end

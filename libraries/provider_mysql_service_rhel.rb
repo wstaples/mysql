@@ -53,7 +53,7 @@ class Chef
             action :create
           end
 
-          # Turns out that mysqld is hard coded to try and read
+          # Turns out mysqld is hard coded to try and read
           # /etc/mysql/my.cnf, and its presence causes problems when
           # setting up multiple services.
           file "#{new_resource.parsed_name} :create #{base_dir}/etc/mysql/my.cnf" do
@@ -94,8 +94,8 @@ class Chef
             action :create
           end
 
-          directory "#{new_resource.parsed_name} :create #{new_resource.parsed_data_dir}" do
-            path new_resource.parsed_data_dir
+          directory "#{new_resource.parsed_name} :create #{base_dir}/var/log/#{mysql_name}" do
+            path "#{base_dir}/var/log/#{mysql_name}"
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
             mode '0750'
@@ -103,8 +103,8 @@ class Chef
             action :create
           end
 
-          directory "#{new_resource.parsed_name} :create #{base_dir}/var/log/#{mysql_name}" do
-            path "#{base_dir}/var/log/#{mysql_name}"
+          directory "#{new_resource.parsed_name} :create #{new_resource.parsed_data_dir}" do
+            path new_resource.parsed_data_dir
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
             mode '0750'
