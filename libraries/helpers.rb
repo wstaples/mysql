@@ -134,14 +134,15 @@ module Opscode
             }
           },
           'fedora' => {
-            '19' => {
-              '5.5' => {
-                'package_name' => 'community-mysql-server'
-              }
-            },
             '20' => {
               '5.5' => {
                 'package_name' => 'community-mysql-server'
+              },
+              '5.6' => {
+                'package_name' => 'mysql-community-server'
+              },
+              '5.7' => {
+                'package_name' => 'mysql-community-server'
               }
             }
           },

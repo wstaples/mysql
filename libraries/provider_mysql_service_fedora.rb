@@ -15,6 +15,18 @@ class Chef
         include MysqlCookbook::Helpers::Fedora
 
         action :create do
+          # we need to enable the yum-mysql-community repository to get packages
+          case new_resource.parsed_version
+          when '5.6'
+            recipe_eval do
+              run_context.include_recipe 'yum-mysql-community::mysql56'
+            end
+          when '5.7'
+            recipe_eval do
+              run_context.include_recipe 'yum-mysql-community::mysql57'
+            end
+          end
+          
           # Software installation
           package "#{new_resource.parsed_name} :create #{new_resource.parsed_package_name}" do
             package_name new_resource.parsed_package_name

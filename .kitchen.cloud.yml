@@ -205,6 +205,7 @@ suites:
       'redhat-6.5',
       'centos-7.0',
       'amazon-2014.09',
+      'fedora-20',
       'omnios-151006'
     ]
     attributes:
@@ -223,6 +224,7 @@ suites:
       'redhat-6.5',
       'centos-7.0',
       'amazon-2014.09',
+      'fedora-20',
       'omnios-151006'
     ]
     attributes:
@@ -298,6 +300,7 @@ suites:
       'centos-6.5',
       'redhat-6.5',
       'centos-7.0',
+      'fedora-20',
       'amazon-2014.09'
     ]
     attributes:
@@ -319,6 +322,7 @@ suites:
       'centos-6.5',
       'redhat-6.5',
       'centos-7.0',
+      'fedora-20',
       'amazon-2014.09'
     ]
     attributes:
