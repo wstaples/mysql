@@ -97,8 +97,6 @@ start(){
 		        return 1
 	      fi
 
-	      # echo "SEANDEBUG: $exec --defaults-file=\"<%= @etc_dir %>/my.cnf\""
-
 	      $exec --defaults-file="<%= @etc_dir %>/my.cnf" >/dev/null 2>&1 &
 	      safe_pid=$!
 	      # Spin for a maximum of N seconds waiting for the server to come up;

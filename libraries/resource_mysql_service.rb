@@ -42,7 +42,7 @@ class Chef
     def parsed_initial_root_password
       return initial_root_password if initial_root_password
     end
-    
+
     def parsed_instance
       return instance if instance
     end

@@ -1,0 +1,19 @@
+[Unit]
+Description=MySQL database server
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=<%= @run_user %>
+Group=<%= @run_group %>
+
+ExecStart=/usr/bin/mysqld_safe --defaults-file=<%= @etc_dir %>/my.cnf --basedir=<%= @base_dir %>
+ExecStartPost=/usr/libexec/<%= @mysql_name %>-wait-ready $MAINPID
+
+TimeoutSec=300
+
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

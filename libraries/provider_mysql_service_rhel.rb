@@ -144,7 +144,6 @@ class Chef
             code init_records_script
             action :nothing
           end
-
         end
 
         action :delete do

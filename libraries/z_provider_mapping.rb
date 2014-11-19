@@ -6,12 +6,14 @@ Chef::Platform.set :platform => :debian, :resource => :mysql_client, :provider =
 Chef::Platform.set :platform => :centos, :resource => :mysql_client, :provider => Chef::Provider::MysqlClient::Rhel
 Chef::Platform.set :platform => :redhat, :resource => :mysql_client, :provider => Chef::Provider::MysqlClient::Rhel
 Chef::Platform.set :platform => :amazon, :resource => :mysql_client, :provider => Chef::Provider::MysqlClient::Rhel
+Chef::Platform.set :platform => :fedora, :resource => :mysql_client, :provider => Chef::Provider::MysqlClient::Fedora
 
 # service
 Chef::Platform.set :platform => :debian, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Debian
 Chef::Platform.set :platform => :centos, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Rhel
 Chef::Platform.set :platform => :redhat, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Rhel
 Chef::Platform.set :platform => :amazon, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Rhel
+Chef::Platform.set :platform => :fedora, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Fedora
 Chef::Platform.set :platform => :omnios, :resource => :mysql_service, :provider => Chef::Provider::MysqlService::Omnios
 
 # config
@@ -19,4 +21,5 @@ Chef::Platform.set :platform => :debian, :resource => :mysql_config, :provider =
 Chef::Platform.set :platform => :centos, :resource => :mysql_config, :provider => Chef::Provider::MysqlConfig::Rhel
 Chef::Platform.set :platform => :redhat, :resource => :mysql_config, :provider => Chef::Provider::MysqlConfig::Rhel
 Chef::Platform.set :platform => :amazon, :resource => :mysql_config, :provider => Chef::Provider::MysqlConfig::Rhel
+Chef::Platform.set :platform => :fedora, :resource => :mysql_config, :provider => Chef::Provider::MysqlConfig::Fedora
 Chef::Platform.set :platform => :omnios, :resource => :mysql_config, :provider => Chef::Provider::MysqlConfig::Omnios
