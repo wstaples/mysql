@@ -46,6 +46,19 @@ class Chef
             action :create
           end
 
+          # Turns out mysqld is hard coded to try and read
+          # /etc/mysql/my.cnf, and its presence causes problems when
+          # setting up multiple services.
+          file "#{new_resource.parsed_name} :create /etc/mysql/my.cnf" do
+            path '/etc/mysql/my.cnf'
+            action :delete
+          end
+
+          file "#{new_resource.parsed_name} :create /etc/my.cnf" do
+            path '/etc/my.cnf'
+            action :delete
+          end
+
           # Support directories
           directory "#{new_resource.parsed_name} :create #{etc_dir}" do
             path "#{etc_dir}"
@@ -83,8 +96,8 @@ class Chef
             action :create
           end
 
-          directory "#{new_resource.parsed_name} :create #{base_dir}/var/log/#{mysql_name}" do
-            path "#{base_dir}/var/log/#{mysql_name}"
+          directory "#{new_resource.parsed_name} :create /var/log/#{mysql_name}" do
+            path "/var/log/#{mysql_name}"
             owner new_resource.parsed_run_user
             group new_resource.parsed_run_group
             mode '0750'
@@ -141,7 +154,7 @@ class Chef
             action :create
           end
 
-          template "#{new_resource.parsed_name} :start /usr/lib/systemd/system#{mysql_name}.service" do
+          template "#{new_resource.parsed_name} :start /usr/lib/systemd/system/#{mysql_name}.service" do
             path "/usr/lib/systemd/system/#{mysql_name}.service"
             source 'systemd/mysqld.service.erb'
             owner 'root'
