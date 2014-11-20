@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'mysql_service::single on centos-5.8' do
-  let(:mysql_service_multi_57_centos_5_8_stepinto) do
+  let(:centos_58_service_57_multi) do
     ChefSpec::Runner.new(
       :platform => 'centos',
       :version => '5.8',
@@ -29,31 +29,31 @@ describe 'mysql_service::single on centos-5.8' do
   #
   context 'compiling the test recipe' do
     it 'creates user[alice]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_user('alice')
+      expect(centos_58_service_57_multi).to create_user('alice')
     end
 
     it 'creates group[alice]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_group('alice')
+      expect(centos_58_service_57_multi).to create_group('alice')
     end
 
     it 'creates user[bob]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_user('bob')
+      expect(centos_58_service_57_multi).to create_user('bob')
     end
 
     it 'creates group[bob]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_group('bob')
+      expect(centos_58_service_57_multi).to create_group('bob')
     end
 
     it 'deletes mysql_service[default]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to delete_mysql_service('default')
+      expect(centos_58_service_57_multi).to delete_mysql_service('default')
     end
 
     it 'creates mysql_service[instance-1]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_mysql_service('instance-1')
+      expect(centos_58_service_57_multi).to create_mysql_service('instance-1')
     end
 
     it 'creates mysql_service[instance-2]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_mysql_service('instance-2')
+      expect(centos_58_service_57_multi).to create_mysql_service('instance-2')
     end
   end
 
@@ -69,32 +69,32 @@ describe 'mysql_service::single on centos-5.8' do
   # mysql_service[instance-1] with action [:create, :start]
   context 'stepping into mysql_service[instance-1] resource' do
     it 'installs package[instance-1 :create mysql-community-server]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to install_package('instance-1 :create mysql-community-server')
+      expect(centos_58_service_57_multi).to install_package('instance-1 :create mysql-community-server')
         .with(:package_name => 'mysql-community-server', :version => nil)
     end
 
     it 'creates group[instance-1 :create mysql]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_group('instance-1 :create mysql')
+      expect(centos_58_service_57_multi).to create_group('instance-1 :create mysql')
         .with(:group_name => 'mysql')
     end
 
     it 'creates user[instance-1 :create mysql]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_user('instance-1 :create mysql')
+      expect(centos_58_service_57_multi).to create_user('instance-1 :create mysql')
         .with(:username => 'mysql')
     end
 
     it 'deletes file[instance-1 :create /etc/mysql/my.cnf]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to delete_file('instance-1 :create /etc/mysql/my.cnf')
+      expect(centos_58_service_57_multi).to delete_file('instance-1 :create /etc/mysql/my.cnf')
         .with(:path => '/etc/mysql/my.cnf')
     end
 
     it 'deletes file[instance-1 :create /etc/my.cnf]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to delete_file('instance-1 :create /etc/my.cnf')
+      expect(centos_58_service_57_multi).to delete_file('instance-1 :create /etc/my.cnf')
         .with(:path => '/etc/my.cnf')
     end
 
     it 'creates directory[instance-1 :create /etc/mysql-instance-1]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-1 :create /etc/mysql-instance-1')
+      expect(centos_58_service_57_multi).to create_directory('instance-1 :create /etc/mysql-instance-1')
         .with(
         :path => '/etc/mysql-instance-1',
         :owner => 'alice',
@@ -105,7 +105,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates directory[instance-1 :create /etc/mysql-instance-1/conf.d]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-1 :create /etc/mysql-instance-1/conf.d')
+      expect(centos_58_service_57_multi).to create_directory('instance-1 :create /etc/mysql-instance-1/conf.d')
         .with(
         :path => '/etc/mysql-instance-1/conf.d',
         :owner => 'alice',
@@ -116,7 +116,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates directory[instance-1 :create /var/run/mysql-instance-1]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-1 :create /var/run/mysql-instance-1')
+      expect(centos_58_service_57_multi).to create_directory('instance-1 :create /var/run/mysql-instance-1')
         .with(
         :path => '/var/run/mysql-instance-1',
         :owner => 'alice',
@@ -127,7 +127,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates directory[instance-1 :create /var/log/mysql-instance-1]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-1 :create /var/log/mysql-instance-1')
+      expect(centos_58_service_57_multi).to create_directory('instance-1 :create /var/log/mysql-instance-1')
         .with(
         :path => '/var/log/mysql-instance-1',
         :owner => 'alice',
@@ -138,7 +138,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates directory[instance-1 :create /data/instance-1]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-1 :create /data/instance-1')
+      expect(centos_58_service_57_multi).to create_directory('instance-1 :create /data/instance-1')
         .with(
         :path => '/data/instance-1',
         :owner => 'alice',
@@ -149,7 +149,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates template[instance-1 :create /etc/mysql-instance-1/my.cnf]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_template('instance-1 :create /etc/mysql-instance-1/my.cnf')
+      expect(centos_58_service_57_multi).to create_template('instance-1 :create /etc/mysql-instance-1/my.cnf')
         .with(
         :path => '/etc/mysql-instance-1/my.cnf',
         :owner => 'alice',
@@ -159,18 +159,18 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'runs bash[instance-1 :create initialize mysql database]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to_not run_bash('instance-1 :create initialize mysql database')
+      expect(centos_58_service_57_multi).to_not run_bash('instance-1 :create initialize mysql database')
         .with(
         :cwd => '/data/instance-1'
         )
     end
 
     it 'runs bash[instance-1 :create initial records]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to_not run_bash('instance-1 :create initial records')
+      expect(centos_58_service_57_multi).to_not run_bash('instance-1 :create initial records')
     end
 
     it 'create template[instance-1 :start /etc/init.d/mysql-instance-1]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_template('instance-1 :start /etc/init.d/mysql-instance-1')
+      expect(centos_58_service_57_multi).to create_template('instance-1 :start /etc/init.d/mysql-instance-1')
         .with(
         :path => '/etc/init.d/mysql-instance-1',
         :source => 'sysvinit/rhel/sysvinit.erb',
@@ -182,7 +182,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'starts service[instance-1 :start mysql-instance-1]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to start_service('instance-1 :start mysql-instance-1')
+      expect(centos_58_service_57_multi).to start_service('instance-1 :start mysql-instance-1')
         .with(
         :service_name => 'mysql-instance-1',
         :provider => Chef::Provider::Service::Init
@@ -193,32 +193,32 @@ describe 'mysql_service::single on centos-5.8' do
   # mysql_service[instance-2] with action [:create, :start]
   context 'stepping into mysql_service[instance-2] resource' do
     it 'installs package[instance-2 :create mysql-community-server]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to install_package('instance-2 :create mysql-community-server')
+      expect(centos_58_service_57_multi).to install_package('instance-2 :create mysql-community-server')
         .with(:package_name => 'mysql-community-server', :version => nil)
     end
 
     it 'creates group[instance-2 :create mysql]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_group('instance-2 :create mysql')
+      expect(centos_58_service_57_multi).to create_group('instance-2 :create mysql')
         .with(:group_name => 'mysql')
     end
 
     it 'creates user[instance-2 :create mysql]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_user('instance-2 :create mysql')
+      expect(centos_58_service_57_multi).to create_user('instance-2 :create mysql')
         .with(:username => 'mysql')
     end
 
     it 'deletes file[instance-2 :create /etc/mysql/my.cnf]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to delete_file('instance-2 :create /etc/mysql/my.cnf')
+      expect(centos_58_service_57_multi).to delete_file('instance-2 :create /etc/mysql/my.cnf')
         .with(:path => '/etc/mysql/my.cnf')
     end
 
     it 'deletes file[instance-2 :create /etc/my.cnf]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to delete_file('instance-2 :create /etc/my.cnf')
+      expect(centos_58_service_57_multi).to delete_file('instance-2 :create /etc/my.cnf')
         .with(:path => '/etc/my.cnf')
     end
 
     it 'creates directory[instance-2 :create /etc/mysql-instance-2]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-2 :create /etc/mysql-instance-2')
+      expect(centos_58_service_57_multi).to create_directory('instance-2 :create /etc/mysql-instance-2')
         .with(
         :path => '/etc/mysql-instance-2',
         :owner => 'bob',
@@ -229,7 +229,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates directory[instance-2 :create /etc/mysql-instance-2/conf.d]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-2 :create /etc/mysql-instance-2/conf.d')
+      expect(centos_58_service_57_multi).to create_directory('instance-2 :create /etc/mysql-instance-2/conf.d')
         .with(
         :path => '/etc/mysql-instance-2/conf.d',
         :owner => 'bob',
@@ -240,7 +240,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates directory[instance-2 :create /var/run/mysql-instance-2]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-2 :create /var/run/mysql-instance-2')
+      expect(centos_58_service_57_multi).to create_directory('instance-2 :create /var/run/mysql-instance-2')
         .with(
         :path => '/var/run/mysql-instance-2',
         :owner => 'bob',
@@ -251,7 +251,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates directory[instance-2 :create /var/log/mysql-instance-2]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-2 :create /var/log/mysql-instance-2')
+      expect(centos_58_service_57_multi).to create_directory('instance-2 :create /var/log/mysql-instance-2')
         .with(
         :path => '/var/log/mysql-instance-2',
         :owner => 'bob',
@@ -262,7 +262,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates directory[instance-2 :create /data/instance-2]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_directory('instance-2 :create /data/instance-2')
+      expect(centos_58_service_57_multi).to create_directory('instance-2 :create /data/instance-2')
         .with(
         :path => '/data/instance-2',
         :owner => 'bob',
@@ -273,7 +273,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'creates template[instance-2 :create /etc/mysql-instance-2/my.cnf]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_template('instance-2 :create /etc/mysql-instance-2/my.cnf')
+      expect(centos_58_service_57_multi).to create_template('instance-2 :create /etc/mysql-instance-2/my.cnf')
         .with(
         :path => '/etc/mysql-instance-2/my.cnf',
         :owner => 'bob',
@@ -283,18 +283,18 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'runs bash[instance-2 :create initialize mysql database]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to_not run_bash('instance-2 :create initialize mysql database')
+      expect(centos_58_service_57_multi).to_not run_bash('instance-2 :create initialize mysql database')
         .with(
         :cwd => '/data/instance-2'
         )
     end
 
     it 'runs bash[instance-2 :create initial records]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to_not run_bash('instance-2 :create initial records')
+      expect(centos_58_service_57_multi).to_not run_bash('instance-2 :create initial records')
     end
 
     it 'create template[instance-2 :start /etc/init.d/mysql-instance-2]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to create_template('instance-2 :start /etc/init.d/mysql-instance-2')
+      expect(centos_58_service_57_multi).to create_template('instance-2 :start /etc/init.d/mysql-instance-2')
         .with(
         :path => '/etc/init.d/mysql-instance-2',
         :source => 'sysvinit/rhel/sysvinit.erb',
@@ -306,7 +306,7 @@ describe 'mysql_service::single on centos-5.8' do
     end
 
     it 'starts service[instance-2 :start mysql-instance-2]' do
-      expect(mysql_service_multi_57_centos_5_8_stepinto).to start_service('instance-2 :start mysql-instance-2')
+      expect(centos_58_service_57_multi).to start_service('instance-2 :start mysql-instance-2')
         .with(
         :service_name => 'mysql-instance-2',
         :provider => Chef::Provider::Service::Init
