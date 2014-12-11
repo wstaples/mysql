@@ -1,4 +1,4 @@
-name 'mysql'
+name 'wstaples_mysql'
 maintainer 'Chef Software, Inc.'
 maintainer_email 'cookbooks@getchef.com'
 license 'Apache 2.0'
