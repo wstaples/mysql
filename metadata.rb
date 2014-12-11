@@ -1,6 +1,6 @@
 name 'wstaples_mysql'
-maintainer 'Chef Software, Inc.'
-maintainer_email 'cookbooks@getchef.com'
+maintainer 'wstaples'
+maintainer_email 'wstaples@geiger.com'
 license 'Apache 2.0'
 description 'Provides mysql_service and mysql_client resources'
 
